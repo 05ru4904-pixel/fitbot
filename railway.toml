@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[[services]]
+name = "bot"
+startCommand = "python bot.py"
+
+[[services]]
+name = "api"
+startCommand = "python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"

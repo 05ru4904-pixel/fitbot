@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:#0b0609;}
+  input,button,textarea{font-family:inherit;color:inherit;}
+  button{cursor:pointer;border:none;background:none;}
+  .fd-scroll::-webkit-scrollbar{width:0;height:0;}
+  .fd-scroll{scrollbar-width:none;}
+  ::placeholder{color:rgba(255,255,255,0.32);}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:rgba(255,255,255,0.1);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;border-radius:50%;background:#1A0E17;border:3px solid #B306E0;box-shadow:0 0 0 5px rgba(179,6,224,0.18),0 6px 14px rgba(0,0,0,0.5);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#1A0E17;border:3px solid #B306E0;cursor:pointer;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  @keyframes fdFade{from{opacity:0;}to{opacity:1;}}
+  @keyframes fdUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @keyframes fdPop{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
+</style>
+</helmet>
+
+<div style="max-width:440px;margin:0 auto;min-height:100vh;background:#1A0E17;color:#fff;font-family:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;position:relative;overflow-x:hidden;">
+
+  <!-- ============ ONBOARDING ============ -->
+  <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;display:flex;flex-direction:column;padding:22px 22px 30px;position:relative;">
+    <div style="position:absolute;top:-120px;left:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(179,6,224,0.35),transparent 70%);filter:blur(20px);pointer-events:none;"></div>
+    <div style="position:absolute;top:60px;right:-90px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(172,236,3,0.16),transparent 70%);filter:blur(20px);pointer-events:none;"></div>
+
+    <!-- progress + back -->
+    <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:14px;position:relative;z-index:2;margin-bottom:8px;">
+      <button onClick="{{ onBack }}" style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.06);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+      <div style="flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;">
+        <div style="height:100%;width:{{ progressPct }};border-radius:99px;background:linear-gradient(90deg,#B306E0,#ACEC03);transition:width .35s ease;"></div>
+      </div>
+      <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;color:rgba(255,255,255,0.5);min-width:34px;text-align:right;">{{ stepLabel }}</div>
+    </div>
+    </sc-if>
+
+    <!-- step 0: welcome -->
+    <sc-if value="{{ isStep0 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;text-align:center;">
+      <div style="width:96px;height:96px;margin:0 auto 26px;border-radius:28px;background:linear-gradient(150deg,#B306E0,#7a04a0);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 40px rgba(179,6,224,0.4);">
+        <div style="width:44px;height:44px;border-radius:12px;border:3px solid #ACEC03;position:relative;">
+          <div style="position:absolute;inset:6px 6px auto 6px;height:3px;border-radius:2px;background:#ACEC03;"></div>
+          <div style="position:absolute;left:6px;right:14px;top:15px;height:3px;border-radius:2px;background:rgba(172,236,3,0.6);"></div>
+          <div style="position:absolute;left:6px;right:18px;top:24px;height:3px;border-radius:2px;background:rgba(172,236,3,0.6);"></div>
+        </div>
+      </div>
+      <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:34px;line-height:1.05;letter-spacing:-0.5px;margin-bottom:14px;">Дневник<br>питания</div>
+      <div style="font-size:16px;line-height:1.5;color:rgba(255,255,255,0.55);max-width:290px;margin:0 auto;">Считай калории и КБЖУ, следи за целью и держи форму без лишних усилий.</div>
+    </div>
+    <button onClick="{{ onStart }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;box-shadow:0 14px 30px rgba(179,6,224,0.35);">Начать</button>
+    </sc-if>
+
+    <!-- step 1: gender -->
+    <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;z-index:2;padding-top:26px;">
+      <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;line-height:1.15;letter-spacing:-0.3px;margin-bottom:8px;">Ваш пол</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:26px;">Нужен для точного расчёта нормы калорий.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <sc-for list="{{ genderOptions }}" as="opt" hint-placeholder-count="2">
+          <button onClick="{{ opt.onSelect }}" style="{{ opt.tileStyle }}">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:44px;line-height:1;{{ opt.iconStyle }}">{{ opt.symbol }}</div>
+            <div style="font-size:16px;font-weight:600;">{{ opt.label }}</div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <button onClick="{{ onNext }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;">Далее</button>
+    </sc-if>
+
+    <!-- step 2: goal -->
+    <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;z-index:2;padding-top:26px;">
+      <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;line-height:1.15;letter-spacing:-0.3px;margin-bottom:8px;">Какая цель?</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:26px;">Под неё подстроим суточную норму КБЖУ.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <sc-for list="{{ goalOptions }}" as="opt" hint-placeholder-count="3">
+          <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyle }}">
+            <div style="text-align:left;">
+              <div style="font-size:17px;font-weight:600;margin-bottom:2px;">{{ opt.label }}</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.5);">{{ opt.desc }}</div>
+            </div>
+            <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <button onClick="{{ onNext }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;">Далее</button>
+    </sc-if>
+
+    <!-- step 3: age / step 4: weight / step 5: height -->
+    <sc-if value="{{ isSliderStep }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;z-index:2;padding-top:26px;">
+      <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;line-height:1.15;letter-spacing:-0.3px;margin-bottom:8px;">{{ sliderTitle }}</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:10px;">{{ sliderHint }}</div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:38px;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:78px;line-height:1;letter-spacing:-2px;">{{ sliderValue }}</div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:600;font-size:22px;color:#ACEC03;">{{ sliderUnit }}</div>
+        </div>
+        <div style="width:100%;">
+          <input type="range" min="{{ sliderMin }}" max="{{ sliderMax }}" step="{{ sliderStep }}" value="{{ sliderValue }}" onInput="{{ onSlider }}" style="accent-color:#B306E0;">
+          <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+            <span>{{ sliderMin }}</span><span>{{ sliderMax }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button onClick="{{ onNext }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;">Далее</button>
+    </sc-if>
+
+    <!-- step 6: activity -->
+    <sc-if value="{{ isStep6 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;z-index:2;padding-top:26px;">
+      <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;line-height:1.15;letter-spacing:-0.3px;margin-bottom:8px;">Уровень активности</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:22px;">Как часто вы двигаетесь в течение дня.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ activityOptions }}" as="opt" hint-placeholder-count="5">
+          <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyle }}">
+            <div style="text-align:left;">
+              <div style="font-size:16px;font-weight:600;margin-bottom:1px;">{{ opt.label }}</div>
+              <div style="font-size:12.5px;color:rgba(255,255,255,0.48);">{{ opt.desc }}</div>
+            </div>
+            <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <button onClick="{{ onNext }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;margin-top:14px;">Рассчитать</button>
+    </sc-if>
+
+    <!-- step 7: result -->
+    <sc-if value="{{ isStep7 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;z-index:2;padding-top:14px;">
+      <div style="text-align:center;margin-bottom:22px;">
+        <div style="display:inline-block;padding:6px 14px;border-radius:99px;background:rgba(172,236,3,0.12);color:#ACEC03;font-size:12px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;margin-bottom:16px;">Ваш план готов</div>
+        <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:24px;line-height:1.2;">Суточная норма</div>
+      </div>
+      <div style="background:linear-gradient(150deg,rgba(179,6,224,0.22),rgba(172,236,3,0.06));border:1px solid rgba(179,6,224,0.3);border-radius:26px;padding:28px 22px;text-align:center;margin-bottom:16px;">
+        <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:60px;line-height:1;letter-spacing:-1.5px;background:linear-gradient(120deg,#fff,#ACEC03);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ resTargets.kcal }}</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.55);margin-top:6px;">ккал в день · {{ resGoalLabel }}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:16px 8px;text-align:center;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:22px;color:#ACEC03;">{{ resTargets.p }}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Белки, г</div>
+        </div>
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:16px 8px;text-align:center;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:22px;color:#E56AD4;">{{ resTargets.f }}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Жиры, г</div>
+        </div>
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:16px 8px;text-align:center;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:22px;color:#B306E0;">{{ resTargets.c }}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Углев., г</div>
+        </div>
+      </div>
+    </div>
+    <button onClick="{{ onFinish }}" style="position:relative;z-index:2;width:100%;height:58px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;box-shadow:0 14px 30px rgba(179,6,224,0.35);margin-top:16px;">Перейти в дневник</button>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+  <!-- ============ APP ============ -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+  <div class="fd-scroll" style="min-height:100vh;padding-bottom:96px;">
+
+    <!-- ---- HOME ---- -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="">
+      <div style="padding:26px 20px 8px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.45);">{{ greeting }}</div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.3px;">{{ userName }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.4);">{{ dateLabel }}</div>
+          <div style="font-size:13px;color:#ACEC03;font-weight:600;margin-top:2px;">{{ streakLabel }}</div>
+        </div>
+      </div>
+
+      <!-- summary card -->
+      <div style="margin:12px 16px 0;background:linear-gradient(160deg,#241322,#1b0f18);border:1px solid rgba(255,255,255,0.07);border-radius:26px;padding:22px 20px;">
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div style="position:relative;width:128px;height:128px;flex-shrink:0;">
+            <svg width="128" height="128" viewBox="0 0 128 128" style="transform:rotate(-90deg);">
+              <defs>
+                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#B306E0"></stop>
+                  <stop offset="1" stop-color="#ACEC03"></stop>
+                </linearGradient>
+              </defs>
+              <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12"></circle>
+              <circle cx="64" cy="64" r="54" fill="none" stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ ringCirc }}" stroke-dashoffset="{{ ringOffset }}" style="transition:stroke-dashoffset .5s ease;"></circle>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:30px;line-height:1;letter-spacing:-0.5px;">{{ remainKcal }}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;">{{ remainLabel }}</div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:15px;">
+            <sc-for list="{{ macros }}" as="m" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+                  <span style="font-size:13px;color:rgba(255,255,255,0.7);">{{ m.label }}</span>
+                  <span style="font-family:'Manrope',sans-serif;font-size:12.5px;color:rgba(255,255,255,0.5);">{{ m.valLabel }}</span>
+                </div>
+                <div style="height:7px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;">
+                  <div style="height:100%;width:{{ m.pct }};border-radius:99px;background:{{ m.color }};transition:width .5s ease;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="text-align:center;flex:1;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;">{{ eatenKcal }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">Съедено</div>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+          <div style="text-align:center;flex:1;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;color:#ACEC03;">{{ targetKcal }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">Цель</div>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.07);"></div>
+          <div style="text-align:center;flex:1;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;{{ remainColorStyle }}">{{ remainKcalSigned }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">Осталось</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- meals -->
+      <div style="padding:22px 16px 0;">
+        <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;margin-bottom:14px;padding-left:4px;">Рацион на день</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ mealsView }}" as="meal" hint-placeholder-count="4">
+            <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:22px;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:12px;padding:15px 16px;">
+                <div style="width:40px;height:40px;border-radius:13px;background:{{ meal.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <div style="width:16px;height:16px;border-radius:5px;background:{{ meal.iconColor }};"></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:16px;font-weight:600;">{{ meal.title }}</div>
+                  <div style="font-size:12.5px;color:rgba(255,255,255,0.45);">{{ meal.sub }}</div>
+                </div>
+                <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;{{ meal.totalStyle }}">{{ meal.totalLabel }}</div>
+              </div>
+              <sc-if value="{{ meal.hasItems }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 16px 6px;">
+                <sc-for list="{{ meal.items }}" as="it" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,0.05);">
+                    <div style="flex:1;">
+                      <div style="font-size:14.5px;">{{ it.name }}</div>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.4);">{{ it.detail }}</div>
+                    </div>
+                    <div style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">{{ it.kcalLabel }}</div>
+                    <button onClick="{{ it.onRemove }}" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+                  </div>
+                </sc-for>
+              </div>
+              </sc-if>
+              <button onClick="{{ meal.onAdd }}" style="width:100%;padding:13px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.05);color:#B306E0;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span style="font-size:18px;line-height:1;">+</span> Добавить продукт
+              </button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ---- STATS ---- -->
+    <sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:26px 16px 0;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;padding-left:4px;margin-bottom:18px;gap:10px;">
+        <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.3px;">Статистика</div>
+        <sc-if value="{{ isWeightLoggedToday }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onOpenAddWeight }}" style="text-align:right;padding-top:4px;flex-shrink:0;background:none;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);">Ваш текущий вес</div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;color:#ACEC03;margin-top:2px;">{{ todayWeightLabel }}</div>
+        </button>
+        </sc-if>
+        <sc-if value="{{ isWeightNotLogged }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ onOpenAddWeight }}" style="display:flex;align-items:center;gap:5px;background:rgba(179,6,224,0.16);border:1px solid rgba(179,6,224,0.32);color:#fff;border-radius:12px;padding:9px 13px;font-size:13px;font-weight:600;flex-shrink:0;white-space:nowrap;">
+          <span style="color:#B306E0;font-size:16px;line-height:1;">+</span> Добавить вес
+        </button>
+        </sc-if>
+      </div>
+
+      <!-- weight chart -->
+      <div onClick="{{ onOpenStatsDetail }}" style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:24px;padding:20px;margin-bottom:14px;cursor:pointer;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);">Текущий вес</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-top:2px;">
+              <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:32px;letter-spacing:-0.5px;">{{ curWeight }}</span>
+              <span style="font-size:14px;color:rgba(255,255,255,0.5);">кг</span>
+              <span style="font-size:13px;font-weight:700;{{ deltaStyle }}">{{ weightDelta }}</span>
+            </div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:rgba(255,255,255,0.4);padding-top:4px;">{{ periodLabel }}</div>
+        </div>
+        <svg width="100%" viewBox="0 0 320 130" preserveAspectRatio="none" style="display:block;overflow:visible;">
+          <defs>
+            <linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(179,6,224,0.35)"></stop>
+              <stop offset="1" stop-color="rgba(179,6,224,0)"></stop>
+            </linearGradient>
+          </defs>
+          <path d="{{ weightArea }}" fill="url(#wGrad)"></path>
+          <polyline points="{{ weightLine }}" fill="none" stroke="#ACEC03" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          <sc-for list="{{ weightDots }}" as="d" hint-placeholder-count="0">
+            <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3" fill="#1A0E17" stroke="#ACEC03" stroke-width="2"></circle>
+          </sc-for>
+        </svg>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+          <span>{{ chartStartLabel }}</span><span>{{ chartEndLabel }}</span>
+        </div>
+        <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);font-size:12.5px;color:#B306E0;font-weight:600;">Подробнее ›</div>
+      </div>
+
+      <!-- avg cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:18px;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:24px;">{{ avgKcal }}</div>
+          <div style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-top:2px;">Средн. ккал / день</div>
+        </div>
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:18px;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:24px;color:#ACEC03;">{{ goalDaysLabel }}</div>
+          <div style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-top:2px;">Дней в норме</div>
+        </div>
+      </div>
+
+      <!-- kbju history -->
+      <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;margin:20px 0 12px;padding-left:4px;">История КБЖУ</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ historyView }}" as="h" hint-placeholder-count="7">
+          <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+              <span style="font-size:14.5px;font-weight:600;{{ h.dateStyle }}">{{ h.dateLabel }}</span>
+              <span style="font-family:'Manrope',sans-serif;font-size:14px;"><span style="{{ h.kcalStyle }}">{{ h.kcal }}</span><span style="color:rgba(255,255,255,0.35);"> / {{ h.target }} ккал</span></span>
+            </div>
+            <div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.07);overflow:hidden;margin-bottom:10px;">
+              <div style="height:100%;width:{{ h.barPct }};border-radius:99px;background:{{ h.barColor }};"></div>
+            </div>
+            <div style="display:flex;gap:14px;font-size:12px;color:rgba(255,255,255,0.5);">
+              <span>Б <b style="color:#ACEC03;font-family:'Manrope',sans-serif;">{{ h.p }}</b></span>
+              <span>Ж <b style="color:#E56AD4;font-family:'Manrope',sans-serif;">{{ h.f }}</b></span>
+              <span>У <b style="color:#B306E0;font-family:'Manrope',sans-serif;">{{ h.c }}</b></span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ---- PROFILE ---- -->
+    <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:26px 16px 0;">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;padding:0 4px;">
+        <div style="width:66px;height:66px;border-radius:22px;background:linear-gradient(150deg,#B306E0,#ACEC03);display:flex;align-items:center;justify-content:center;font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;color:#0f0710;flex-shrink:0;">{{ initial }}</div>
+        <div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;">{{ userName }}</div>
+          <div style="font-size:13.5px;color:#ACEC03;margin-top:2px;">Цель: {{ goalLabel }}</div>
+        </div>
+      </div>
+
+      <!-- target summary -->
+      <div style="background:linear-gradient(150deg,rgba(179,6,224,0.18),rgba(172,236,3,0.05));border:1px solid rgba(179,6,224,0.25);border-radius:22px;padding:18px 20px;margin-bottom:18px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:13.5px;color:rgba(255,255,255,0.6);">Суточная норма</span>
+          <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;">{{ targetKcal }}<span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);"> ккал</span></span>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:14px;padding:10px 4px;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;color:#ACEC03;">{{ targetP }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);">Белки</div>
+          </div>
+          <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:14px;padding:10px 4px;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;color:#E56AD4;">{{ targetF }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);">Жиры</div>
+          </div>
+          <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:14px;padding:10px 4px;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;color:#B306E0;">{{ targetC }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);">Углев.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- editable params -->
+      <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin:0 0 12px;padding-left:4px;">Параметры</div>
+      <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:6px 16px;margin-bottom:16px;">
+        <sc-for list="{{ paramRows }}" as="p" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="font-size:15px;color:rgba(255,255,255,0.75);">{{ p.label }}</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <button onClick="{{ p.onDec }}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.06);color:#fff;font-size:18px;line-height:1;">−</button>
+              <span style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;min-width:56px;text-align:center;">{{ p.value }}</span>
+              <button onClick="{{ p.onInc }}" style="width:32px;height:32px;border-radius:10px;background:rgba(179,6,224,0.15);color:#B306E0;font-size:18px;line-height:1;">+</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin:0 0 12px;padding-left:4px;">Цель</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <sc-for list="{{ goalOptions }}" as="opt" hint-placeholder-count="3">
+          <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyleSm }}">
+            <span style="font-size:15px;font-weight:600;">{{ opt.label }}</span>
+            <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin:0 0 12px;padding-left:4px;">Активность</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <sc-for list="{{ activityOptions }}" as="opt" hint-placeholder-count="5">
+          <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyleSm }}">
+            <span style="font-size:14.5px;font-weight:600;">{{ opt.label }}</span>
+            <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
+          </button>
+        </sc-for>
+      </div>
+
+      <button onClick="{{ onRecalc }}" style="width:100%;height:54px;border-radius:16px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin-bottom:12px;">Пересчитать норму</button>
+      <button onClick="{{ onReset }}" style="width:100%;height:50px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.55);font-size:15px;">Сбросить данные</button>
+    </div>
+    </sc-if>
+
+    <!-- ---- BOTTOM NAV ---- -->
+    <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;z-index:40;background:rgba(20,10,17,0.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,0.08);padding:9px 20px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;">
+      <button onClick="{{ goHome }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 18px;{{ homeNavStyle }}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V20h14V9.5"></path></svg>
+        <span style="font-size:11px;font-weight:600;">Главная</span>
+      </button>
+      <button onClick="{{ goStats }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 18px;{{ statsNavStyle }}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10"></path><path d="M12 20V4"></path><path d="M19 20v-7"></path></svg>
+        <span style="font-size:11px;font-weight:600;">Статистика</span>
+      </button>
+      <button onClick="{{ goProfile }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 18px;{{ profileNavStyle }}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-3.9 3.6-6 8-6s8 2.1 8 6"></path></svg>
+        <span style="font-size:11px;font-weight:600;">Профиль</span>
+      </button>
+    </div>
+
+    <!-- ---- ADD FOOD MODAL ---- -->
+    <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseAdd }}" style="position:fixed;inset:0;z-index:60;background:rgba(5,2,4,0.72);backdrop-filter:blur(3px);display:flex;justify-content:center;align-items:flex-end;">
+      <div onClick="{{ stop }}" class="fd-scroll" style="width:100%;max-width:440px;max-height:88vh;overflow-y:auto;background:#1c1019;border-radius:28px 28px 0 0;border-top:1px solid rgba(255,255,255,0.1);padding:10px 18px 26px;">
+        <div style="width:38px;height:4px;border-radius:99px;background:rgba(255,255,255,0.2);margin:2px auto 14px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;">{{ addMealTitle }}</div>
+          <button onClick="{{ onCloseAdd }}" style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,0.07);color:#fff;font-size:18px;line-height:1;">×</button>
+        </div>
+
+        <sc-if value="{{ portionMode }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <button onClick="{{ onBackList }}" style="color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:14px;display:flex;align-items:center;gap:4px;">‹ К списку</button>
+          <div style="text-align:center;margin-bottom:20px;">
+            <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px;">{{ selName }}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.45);">{{ selPer100 }}</div>
+          </div>
+          <div style="text-align:center;margin-bottom:8px;">
+            <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:52px;letter-spacing:-1px;">{{ grams }}</span>
+            <span style="font-family:'Manrope',sans-serif;font-size:18px;color:#ACEC03;"> г</span>
+          </div>
+          <input type="range" min="10" max="600" step="10" value="{{ grams }}" onInput="{{ onGrams }}" style="accent-color:#B306E0;margin-bottom:22px;">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px;">
+            <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:12px 4px;text-align:center;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;">{{ portion.kcal }}</div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.45);">ккал</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:12px 4px;text-align:center;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;color:#ACEC03;">{{ portion.p }}</div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.45);">белки</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:12px 4px;text-align:center;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;color:#E56AD4;">{{ portion.f }}</div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.45);">жиры</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:12px 4px;text-align:center;">
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;color:#B306E0;">{{ portion.c }}</div>
+              <div style="font-size:10.5px;color:rgba(255,255,255,0.45);">углев.</div>
+            </div>
+          </div>
+          <button onClick="{{ onConfirm }}" style="width:100%;height:54px;border-radius:16px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;">Добавить в {{ addMealShort }}</button>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ listMode }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex;gap:8px;background:rgba(255,255,255,0.05);border-radius:14px;padding:4px;margin-bottom:16px;">
+            <button onClick="{{ onTabList }}" style="{{ tabListStyle }}">Из списка</button>
+            <button onClick="{{ onTabManual }}" style="{{ tabManualStyle }}">Вручную</button>
+          </div>
+
+          <sc-if value="{{ tabIsList }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <input value="{{ query }}" onInput="{{ onQuery }}" placeholder="Поиск продукта…" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 16px;font-size:15px;margin-bottom:14px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ productsView }}" as="pr" hint-placeholder-count="6">
+                <button onClick="{{ pr.onSelect }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:15px;padding:13px 15px;">
+                  <div>
+                    <div style="font-size:15px;font-weight:500;">{{ pr.name }}</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.42);margin-top:2px;">{{ pr.macroLabel }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">{{ pr.kcalLabel }}</span>
+                    <span style="width:28px;height:28px;border-radius:9px;background:rgba(179,6,224,0.16);color:#B306E0;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;">+</span>
+                  </div>
+                </button>
+              </sc-for>
+              <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);font-size:14px;">Ничего не найдено. Добавьте вручную →</div>
+              </sc-if>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsManual }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <div style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-bottom:6px;padding-left:2px;">Название</div>
+              <input value="{{ mName }}" onInput="{{ onMName }}" placeholder="Например, паста болоньезе" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 16px;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <div style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-bottom:6px;padding-left:2px;">Ккал</div>
+                <input value="{{ mKcal }}" onInput="{{ onMKcal }}" type="number" inputmode="numeric" placeholder="0" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 16px;font-size:15px;font-family:'Manrope',sans-serif;">
+              </div>
+              <div>
+                <div style="font-size:12.5px;color:rgba(255,255,255,0.5);margin-bottom:6px;padding-left:2px;">Порция, г</div>
+                <input value="{{ mGrams }}" onInput="{{ onMGrams }}" type="number" inputmode="numeric" placeholder="100" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 16px;font-size:15px;font-family:'Manrope',sans-serif;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <div>
+                <div style="font-size:12px;color:#ACEC03;margin-bottom:6px;padding-left:2px;">Белки, г</div>
+                <input value="{{ mP }}" onInput="{{ onMP }}" type="number" inputmode="numeric" placeholder="0" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 12px;font-size:15px;font-family:'Manrope',sans-serif;">
+              </div>
+              <div>
+                <div style="font-size:12px;color:#E56AD4;margin-bottom:6px;padding-left:2px;">Жиры, г</div>
+                <input value="{{ mF }}" onInput="{{ onMF }}" type="number" inputmode="numeric" placeholder="0" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 12px;font-size:15px;font-family:'Manrope',sans-serif;">
+              </div>
+              <div>
+                <div style="font-size:12px;color:#B306E0;margin-bottom:6px;padding-left:2px;">Углев., г</div>
+                <input value="{{ mC }}" onInput="{{ onMC }}" type="number" inputmode="numeric" placeholder="0" style="width:100%;height:46px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0 12px;font-size:15px;font-family:'Manrope',sans-serif;">
+              </div>
+            </div>
+            <button onClick="{{ onAddManual }}" style="width:100%;height:54px;border-radius:16px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin-top:6px;">Добавить в {{ addMealShort }}</button>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ---- ADD WEIGHT MODAL ---- -->
+    <sc-if value="{{ weightModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onCloseWeightModal }}" style="position:fixed;inset:0;z-index:60;background:rgba(5,2,4,0.72);backdrop-filter:blur(3px);display:flex;justify-content:center;align-items:flex-end;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:440px;background:#1c1019;border-radius:28px 28px 0 0;border-top:1px solid rgba(255,255,255,0.1);padding:10px 18px 26px;">
+        <div style="width:38px;height:4px;border-radius:99px;background:rgba(255,255,255,0.2);margin:2px auto 14px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;">Сегодняшний вес</div>
+          <button onClick="{{ onCloseWeightModal }}" style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,0.07);color:#fff;font-size:18px;line-height:1;">×</button>
+        </div>
+        <div style="text-align:center;margin-bottom:8px;">
+          <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:56px;letter-spacing:-1px;">{{ weightDraftLabel }}</span>
+          <span style="font-family:'Manrope',sans-serif;font-size:18px;color:#ACEC03;"> кг</span>
+        </div>
+        <input type="range" min="40" max="160" step="0.1" value="{{ weightDraft }}" onInput="{{ onWeightDraft }}" style="accent-color:#B306E0;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:22px;font-size:12px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+          <span>40</span><span>160</span>
+        </div>
+        <button onClick="{{ onConfirmWeight }}" style="width:100%;height:54px;border-radius:16px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;">Сохранить</button>
+        <sc-if value="{{ isWeightLoggedToday }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onClearTodayWeight }}" style="width:100%;text-align:center;margin-top:14px;color:rgba(255,255,255,0.45);font-size:14px;">Удалить запись за сегодня</button>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ---- STATS DETAIL ---- -->
+    <sc-if value="{{ statsDetailOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="fd-scroll" style="position:fixed;inset:0;z-index:65;background:#170c14;overflow-y:auto;">
+      <div style="max-width:440px;margin:0 auto;padding:22px 16px 40px;min-height:100vh;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+          <button onClick="{{ onCloseStatsDetail }}" style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.06);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;">Подробная статистика</div>
+        </div>
+
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px;padding-left:4px;">Вес от времени</div>
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:22px;padding:18px;margin-bottom:22px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.4);">
+            <span>Макс. {{ wMaxLabel }}</span>
+            <span>Мин. {{ wMinLabel }}</span>
+          </div>
+          <svg width="100%" viewBox="0 0 320 160" preserveAspectRatio="none" style="display:block;overflow:visible;">
+            <defs>
+              <linearGradient id="wGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(179,6,224,0.35)"></stop>
+                <stop offset="1" stop-color="rgba(179,6,224,0)"></stop>
+              </linearGradient>
+            </defs>
+            <path d="{{ weightArea2 }}" fill="url(#wGrad2)"></path>
+            <polyline points="{{ weightLine2 }}" fill="none" stroke="#ACEC03" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <sc-for list="{{ weightDots2 }}" as="d" hint-placeholder-count="0">
+              <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3.5" fill="#1A0E17" stroke="#ACEC03" stroke-width="2"></circle>
+            </sc-for>
+          </svg>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+            <span>{{ chartStartLabel2 }}</span><span>{{ chartEndLabel2 }}</span>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px;padding-left:4px;">Калории от времени</div>
+        <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:22px;padding:18px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.4);">
+            <span>Норма: {{ targetKcal }} ккал</span>
+            <span>Средн.: {{ avgKcal }} ккал</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:5px;height:140px;">
+            <sc-for list="{{ calBars }}" as="b" hint-placeholder-count="10">
+              <div style="flex:1;height:100%;display:flex;align-items:flex-end;">
+                <div style="width:100%;border-radius:6px 6px 3px 3px;height:{{ b.h }};background:{{ b.color }};"></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+            <span>{{ calStartLabel }}</span><span>{{ calEndLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860},&quot;startOnHome&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Открыть сразу главный экран&quot;},&quot;seedToday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Заполнить рацион примером&quot;},&quot;enableSnack&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Рацион&quot;,&quot;label&quot;:&quot;Показывать «Перекус»&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'onboarding',
+    step: 0,
+    tab: 'home',
+    gender: 'female',
+    goal: 'lose',
+    age: 28,
+    weight: 68,
+    height: 168,
+    activity: 'moderate',
+    name: '',
+    targets: null,
+    meals: { breakfast: [], lunch: [], dinner: [], snack: [] },
+    history: [],
+    weightLog: [],
+    todayWeightDate: null,
+    todayWeightValue: null,
+    weightModalOpen: false,
+    weightDraft: null,
+    statsDetailOpen: false,
+    add: { open: false, meal: 'breakfast', tab: 'list', selected: null, grams: 100, query: '',
+           mName: '', mGrams: '', mKcal: '', mP: '', mF: '', mC: '' },
+  };
+
+  get ACT() { return { sedentary: 1.2, light: 1.375, moderate: 1.55, high: 1.725, veryhigh: 1.9 }; }
+  get MEAL_PCT() { return { breakfast: 0.30, lunch: 0.35, dinner: 0.25, snack: 0.10 }; }
+  get MONTHS() { return ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']; }
+  get PRODUCTS() {
+    return [
+      { name: 'Куриная грудка', kcal: 165, p: 31, f: 3.6, c: 0 },
+      { name: 'Индейка, филе', kcal: 104, p: 24, f: 1, c: 0 },
+      { name: 'Лосось', kcal: 208, p: 20, f: 13, c: 0 },
+      { name: 'Яйцо куриное', kcal: 157, p: 12.7, f: 11.5, c: 0.7 },
+      { name: 'Творог 5%', kcal: 121, p: 17, f: 5, c: 1.8 },
+      { name: 'Греческий йогурт', kcal: 59, p: 10, f: 0.4, c: 3.6 },
+      { name: 'Гречка варёная', kcal: 110, p: 4.2, f: 1.1, c: 21 },
+      { name: 'Рис варёный', kcal: 130, p: 2.7, f: 0.3, c: 28 },
+      { name: 'Овсянка на воде', kcal: 88, p: 3, f: 1.7, c: 15 },
+      { name: 'Цельнозерновой хлеб', kcal: 247, p: 13, f: 3.4, c: 41 },
+      { name: 'Банан', kcal: 95, p: 1.5, f: 0.2, c: 21 },
+      { name: 'Яблоко', kcal: 52, p: 0.3, f: 0.2, c: 14 },
+      { name: 'Авокадо', kcal: 160, p: 2, f: 15, c: 9 },
+      { name: 'Брокколи', kcal: 34, p: 2.8, f: 0.4, c: 7 },
+      { name: 'Миндаль', kcal: 579, p: 21, f: 50, c: 22 },
+      { name: 'Оливковое масло', kcal: 884, p: 0, f: 100, c: 0 },
+    ];
+  }
+
+  // ---- API helpers ----
+  get _tg() { return window.Telegram && window.Telegram.WebApp; }
+
+  _apiCall(method, path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const tg = this._tg;
+    if (tg && tg.initData) headers['X-Telegram-Init-Data'] = tg.initData;
+    return fetch('/api' + path, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+  }
+
+  componentDidMount() {
+    var self = this;
+    var tg = this._tg;
+    if (tg) { if (tg.ready) tg.ready(); if (tg.expand) tg.expand(); }
+
+    this._apiCall('GET', '/state').then(function(data) {
+      if (data && data.targets) {
+        var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
+        self.setState({
+          screen: 'app',
+          name: data.name || tgName || 'Гость',
+          gender: data.gender || self.state.gender,
+          goal: data.goal || self.state.goal,
+          age: data.age || self.state.age,
+          weight: data.weight || self.state.weight,
+          height: data.height || self.state.height,
+          activity: data.activity || self.state.activity,
+          targets: data.targets,
+          meals: data.meals || self.state.meals,
+          history: data.history || [],
+          weightLog: data.weightLog || [],
+          todayWeightDate: data.todayWeightDate || null,
+          todayWeightValue: data.todayWeightValue || null,
+          add: self.state.add,
+        });
+      } else {
+        var tgName2 = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
+        if (tgName2) self.setState({ name: tgName2 });
+        self._fromLocalStorage();
+      }
+    }).catch(function() { self._fromLocalStorage(); });
+  }
+
+  _fromLocalStorage() {
+    var tg = this._tg;
+    var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
+    try {
+      var saved = JSON.parse(localStorage.getItem('fd_state_v1') || 'null');
+      if (saved && saved.targets) {
+        this.setState(Object.assign({}, saved, { screen: 'app', add: this.state.add, name: saved.name || tgName || 'Гость' }));
+        return;
+      }
+    } catch(e) {}
+    if (tgName) this.setState({ name: tgName });
+    if (this.props.startOnHome) {
+      var t = this.calc(this.state);
+      this.setState({ screen: 'app', targets: t, history: [], name: this.state.name || 'Гость',
+        meals: this.props.seedToday ? this.sampleMeals() : this.state.meals });
+    }
+  }
+
+  r(n) { return Math.round(n); }
+  todayKey() { return new Date().toISOString().slice(0, 10); }
+
+  calc(s) {
+    var bmr = 10 * s.weight + 6.25 * s.height - 5 * s.age + (s.gender === 'male' ? 5 : -161);
+    var tdee = bmr * (this.ACT[s.activity] || 1.55);
+    if (s.goal === 'lose') tdee *= 0.85;
+    else if (s.goal === 'gain') tdee *= 1.12;
+    var kcal = this.r(tdee);
+    var p = this.r(s.weight * 1.8);
+    var f = this.r(kcal * 0.27 / 9);
+    var c = Math.max(0, this.r((kcal - p * 4 - f * 9) / 4));
+    return { kcal: kcal, p: p, f: f, c: c };
+  }
+
+  macrosFor(kcal) {
+    var p = this.r(kcal * 0.28 / 4), f = this.r(kcal * 0.28 / 9), c = this.r(kcal * 0.44 / 4);
+    return { p: p, f: f, c: c };
+  }
+
+  sampleMeals() {
+    var self = this;
+    var mk = function(i, g) {
+      var pr = self.PRODUCTS[i], k = g / 100;
+      return { name: pr.name, grams: g, kcal: self.r(pr.kcal * k), p: +(pr.p * k).toFixed(1), f: +(pr.f * k).toFixed(1), c: +(pr.c * k).toFixed(1) };
+    };
+    return { breakfast: [mk(8, 60), mk(4, 150)], lunch: [mk(0, 180), mk(6, 150)], dinner: [], snack: [mk(10, 120)] };
+  }
+
+  save(extra) {
+    var s = Object.assign({}, this.state, extra || {});
+    try {
+      localStorage.setItem('fd_state_v1', JSON.stringify({
+        screen: 'app', tab: s.tab, gender: s.gender, goal: s.goal, age: s.age, weight: s.weight,
+        height: s.height, activity: s.activity, name: s.name, targets: s.targets, meals: s.meals,
+        history: s.history, weightLog: s.weightLog,
+        todayWeightDate: s.todayWeightDate, todayWeightValue: s.todayWeightValue,
+      }));
+    } catch(e) {}
+  }
+
+  _syncProfile() {
+    var self = this;
+    clearTimeout(this._tProfile);
+    this._tProfile = setTimeout(function() {
+      var s = self.state;
+      self._apiCall('PUT', '/profile', {
+        gender: s.gender, goal: s.goal, age: s.age,
+        weight: s.weight, height: s.height, activity: s.activity,
+        targets: s.targets ? { kcal: s.targets.kcal, p: s.targets.p, f: s.targets.f, c: s.targets.c } : null,
+      });
+    }, 800);
+  }
+
+  _syncMeals() {
+    var self = this;
+    clearTimeout(this._tMeals);
+    this._tMeals = setTimeout(function() {
+      self._apiCall('PUT', '/meals/today', { meals: self.state.meals });
+    }, 500);
+  }
+
+  persist() { var self = this; setTimeout(function() { self.save(); }, 0); }
+
+  fmtW(n) {
+    var r = Math.round(n * 10) / 10;
+    return Number.isInteger(r) ? String(r) : r.toFixed(1);
+  }
+
+  // ---- onboarding ----
+  next = () => {
+    var s = this.state;
+    if (s.step === 6) {
+      var t = this.calc(s);
+      this.setState({ step: 7, targets: t });
+    } else this.setState({ step: Math.min(7, s.step + 1) });
+  };
+  back = () => this.setState({ step: Math.max(0, this.state.step - 1) });
+  start = () => this.setState({ step: 1 });
+  finish = () => {
+    var self = this;
+    var t = this.state.targets || this.calc(this.state);
+    var tg = this._tg;
+    var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
+    var name = this.state.name || tgName || 'Гость';
+    this.setState({
+      screen: 'app', tab: 'home', targets: t, history: [], name: name,
+      meals: this.props.seedToday ? this.sampleMeals() : this.state.meals,
+    }, function() {
+      self.save();
+      self._syncProfile();
+    });
+  };
+
+  setGender = (g) => this.setState({ gender: g });
+  setGoal = (g) => this.setState({ goal: g }, () => { this.persist(); this._syncProfile(); });
+  setActivity = (a) => this.setState({ activity: a }, () => { this.persist(); this._syncProfile(); });
+  onSlider = (e) => {
+    var v = +e.target.value, s = this.state;
+    if (s.step === 3) this.setState({ age: v });
+    else if (s.step === 4) this.setState({ weight: v });
+    else if (s.step === 5) this.setState({ height: v });
+  };
+
+  goTab = (t) => this.setState({ tab: t }, this.persist);
+
+  // ---- food ----
+  addFood = (meal, item) => {
+    this.setState((s) => ({ meals: Object.assign({}, s.meals, { [meal]: s.meals[meal].concat([item]) }) }), () => {
+      this.save();
+      this._syncMeals();
+    });
+  };
+  removeFood = (meal, idx) => {
+    this.setState((s) => ({ meals: Object.assign({}, s.meals, { [meal]: s.meals[meal].filter(function(_, i) { return i !== idx; }) }) }), () => {
+      this.save();
+      this._syncMeals();
+    });
+  };
+  mergeAdd = (patch) => this.setState((s) => ({ add: Object.assign({}, s.add, patch) }));
+  openAdd = (meal) => this.mergeAdd({ open: true, meal: meal, tab: 'list', selected: null, grams: 100, query: '', mName: '', mGrams: '', mKcal: '', mP: '', mF: '', mC: '' });
+  closeAdd = () => this.mergeAdd({ open: false, selected: null });
+  selectProduct = (i) => this.mergeAdd({ selected: i, grams: 100 });
+  backToList = () => this.mergeAdd({ selected: null });
+  onGrams = (e) => this.mergeAdd({ grams: +e.target.value });
+  onQuery = (e) => this.mergeAdd({ query: e.target.value });
+  confirmPortion = () => {
+    var a = this.state.add, pr = this.PRODUCTS[a.selected], k = a.grams / 100;
+    this.addFood(a.meal, { name: pr.name, grams: a.grams, kcal: this.r(pr.kcal * k), p: +(pr.p * k).toFixed(1), f: +(pr.f * k).toFixed(1), c: +(pr.c * k).toFixed(1) });
+    this.mergeAdd({ open: false, selected: null });
+  };
+  addManual = () => {
+    var a = this.state.add;
+    var name = (a.mName || '').trim() || 'Продукт';
+    var kcal = Math.max(0, this.r(+a.mKcal || 0));
+    if (!kcal && !a.mP && !a.mF && !a.mC) return;
+    this.addFood(a.meal, { name: name, grams: this.r(+a.mGrams || 0) || null, kcal: kcal, p: +(+a.mP || 0).toFixed(1), f: +(+a.mF || 0).toFixed(1), c: +(+a.mC || 0).toFixed(1) });
+    this.mergeAdd({ open: false });
+  };
+
+  // ---- weight log ----
+  openWeightModal = () => {
+    var s = this.state;
+    var draft = (s.todayWeightDate === this.todayKey() && s.todayWeightValue != null) ? s.todayWeightValue : s.weight;
+    this.setState({ weightModalOpen: true, weightDraft: draft });
+  };
+  closeWeightModal = () => this.setState({ weightModalOpen: false });
+  onWeightDraft = (e) => this.setState({ weightDraft: +e.target.value });
+  confirmWeight = () => {
+    var v = this.state.weightDraft;
+    var today = this.todayKey();
+    // Add to local weight log
+    var self = this;
+    this.setState(function(s) {
+      var wLog = s.weightLog.filter(function(w) { return w.date !== today; });
+      wLog.push({ date: today, weight: v });
+      return { todayWeightDate: today, todayWeightValue: v, weight: v, weightModalOpen: false, weightLog: wLog };
+    }, function() {
+      self.save();
+      self._apiCall('POST', '/weight', { weight: v, date: today });
+    });
+  };
+  clearTodayWeight = () => {
+    var today = this.todayKey();
+    var self = this;
+    this.setState(function(s) {
+      return { todayWeightDate: null, todayWeightValue: null, weightModalOpen: false,
+               weightLog: s.weightLog.filter(function(w) { return w.date !== today; }) };
+    }, function() {
+      self.save();
+      self._apiCall('DELETE', '/weight');
+    });
+  };
+  openStatsDetail = () => this.setState({ statsDetailOpen: true });
+  closeStatsDetail = () => this.setState({ statsDetailOpen: false });
+
+  // ---- profile ----
+  bump = (field, d, min, max) => {
+    this.setState((s) => ({ [field]: Math.max(min, Math.min(max, s[field] + d)) }), () => {
+      this.persist();
+      this._syncProfile();
+    });
+  };
+  recalc = () => {
+    var self = this;
+    var t = this.calc(this.state);
+    this.setState({ targets: t }, function() {
+      self.save();
+      self._syncProfile();
+    });
+  };
+  reset = () => {
+    try { localStorage.removeItem('fd_state_v1'); } catch(e) {}
+    this._apiCall('DELETE', '/state');
+    this.setState({ screen: 'onboarding', step: 0, targets: null,
+      meals: { breakfast: [], lunch: [], dinner: [], snack: [] }, history: [], weightLog: [] });
+  };
+
+  totalsOf(meals) {
+    var kcal = 0, p = 0, f = 0, c = 0;
+    Object.values(meals).forEach(function(arr) { arr.forEach(function(it) { kcal += it.kcal; p += it.p; f += it.f; c += it.c; }); });
+    return { kcal: this.r(kcal), p: this.r(p), f: this.r(f), c: this.r(c) };
+  }
+
+  plural(n, forms) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  }
+
+  dateShort(iso) {
+    var d = new Date(iso + 'T00:00:00');
+    var today = this.todayKey();
+    if (iso === today) return 'Сегодня';
+    var yd = new Date(); yd.setDate(yd.getDate() - 1);
+    if (iso === yd.toISOString().slice(0, 10)) return 'Вчера';
+    return d.getDate() + ' ' + this.MONTHS[d.getMonth()];
+  }
+
+  renderVals() {
+    var s = this.state, P = this.props;
+    var showSnack = P.enableSnack !== false;
+    var isOnboarding = s.screen === 'onboarding';
+    var t = s.targets || this.calc(s);
+
+    // ---- option builders ----
+    var dot = function(sel) { return sel
+      ? 'width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#B306E0,#ACEC03);display:flex;align-items:center;justify-content:center;color:#0f0710;font-size:14px;font-weight:800;flex-shrink:0;'
+      : 'width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);flex-shrink:0;'; };
+    var rowStyle = function(sel) { return 'display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border-radius:18px;padding:16px 18px;transition:all .18s;' +
+      (sel ? 'border:1.5px solid #B306E0;background:rgba(179,6,224,0.12);' : 'border:1.5px solid rgba(255,255,255,0.08);background:#20121C;'); };
+    var rowStyleSm = function(sel) { return 'display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border-radius:15px;padding:13px 16px;transition:all .18s;' +
+      (sel ? 'border:1.5px solid #B306E0;background:rgba(179,6,224,0.12);' : 'border:1.5px solid rgba(255,255,255,0.07);background:#20121C;'); };
+
+    var self = this;
+    var goalDefs = [
+      { key: 'lose', label: 'Похудеть', desc: 'Дефицит калорий, снижение веса' },
+      { key: 'maintain', label: 'Поддерживать вес', desc: 'Баланс калорий, стабильная форма' },
+      { key: 'gain', label: 'Набрать массу', desc: 'Профицит калорий, рост мышц' },
+    ];
+    var goalOptions = goalDefs.map(function(g) { return {
+      label: g.label, desc: g.desc, check: s.goal === g.key ? '✓' : '',
+      dotStyle: dot(s.goal === g.key), rowStyle: rowStyle(s.goal === g.key), rowStyleSm: rowStyleSm(s.goal === g.key),
+      onSelect: (function(key) { return function() { self.setGoal(key); }; })(g.key),
+    }; });
+
+    var genderDefs = [{ key: 'female', label: 'Женский', symbol: '♀' }, { key: 'male', label: 'Мужской', symbol: '♂' }];
+    var genderOptions = genderDefs.map(function(g) {
+      var sel = s.gender === g.key;
+      return {
+        label: g.label, symbol: g.symbol,
+        tileStyle: 'display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px 12px;border-radius:20px;transition:all .18s;' +
+          (sel ? 'border:1.5px solid #B306E0;background:rgba(179,6,224,0.12);' : 'border:1.5px solid rgba(255,255,255,0.08);background:#20121C;'),
+        iconStyle: sel ? 'color:#ACEC03;' : 'color:rgba(255,255,255,0.5);',
+        onSelect: (function(key) { return function() { self.setGender(key); }; })(g.key),
+      };
+    });
+
+    var actDefs = [
+      { key: 'sedentary', label: 'Сидячий', desc: 'Мало движения, офис' },
+      { key: 'light', label: 'Лёгкая', desc: 'Прогулки, 1–2 трен./нед.' },
+      { key: 'moderate', label: 'Умеренная', desc: 'Спорт 3–4 раза в неделю' },
+      { key: 'high', label: 'Высокая', desc: 'Интенсивно 5–6 раз в неделю' },
+      { key: 'veryhigh', label: 'Очень высокая', desc: 'Спорт ежедневно / физ. труд' },
+    ];
+    var activityOptions = actDefs.map(function(a) { return {
+      label: a.label, desc: a.desc, check: s.activity === a.key ? '✓' : '',
+      dotStyle: dot(s.activity === a.key), rowStyle: rowStyle(s.activity === a.key), rowStyleSm: rowStyleSm(s.activity === a.key),
+      onSelect: (function(key) { return function() { self.setActivity(key); }; })(a.key),
+    }; });
+
+    var goalLabelMap = { lose: 'Похудение', maintain: 'Поддержание', gain: 'Набор массы' };
+
+    // ---- slider step config ----
+    var sliderStep = s.step === 3 || s.step === 4 || s.step === 5;
+    var sCfg = { title: '', hint: '', value: s.age, unit: 'лет', min: 14, max: 90, step: 1 };
+    if (s.step === 3) sCfg = { title: 'Сколько вам лет?', hint: 'Возраст влияет на обмен веществ.', value: s.age, unit: 'лет', min: 14, max: 90, step: 1 };
+    if (s.step === 4) sCfg = { title: 'Ваш вес', hint: 'Текущий вес в килограммах.', value: s.weight, unit: 'кг', min: 40, max: 160, step: 1 };
+    if (s.step === 5) sCfg = { title: 'Ваш рост', hint: 'Рост в сантиметрах.', value: s.height, unit: 'см', min: 140, max: 210, step: 1 };
+
+    // ---- home ----
+    var totals = this.totalsOf(s.meals);
+    var ringCirc = 2 * Math.PI * 54;
+    var pct = t.kcal ? Math.min(1, totals.kcal / t.kcal) : 0;
+    var remain = t.kcal - totals.kcal;
+    var macros = [
+      { label: 'Белки', val: totals.p, target: t.p, color: '#ACEC03' },
+      { label: 'Жиры', val: totals.f, target: t.f, color: '#E56AD4' },
+      { label: 'Углеводы', val: totals.c, target: t.c, color: '#B306E0' },
+    ].map(function(m) { return { label: m.label, color: m.color, valLabel: m.val + ' / ' + m.target + ' г',
+      pct: Math.min(100, m.target ? (m.val / m.target) * 100 : 0) + '%' }; });
+
+    var hh = new Date().getHours();
+    var greeting = hh < 5 ? 'Доброй ночи' : hh < 12 ? 'Доброе утро' : hh < 17 ? 'Добрый день' : hh < 22 ? 'Добрый вечер' : 'Доброй ночи';
+    var now = new Date();
+    var dateLabel = now.getDate() + ' ' + this.MONTHS[now.getMonth()];
+
+    var mealMeta = {
+      breakfast: { title: 'Завтрак', iconBg: 'rgba(172,236,3,0.14)', iconColor: '#ACEC03' },
+      lunch: { title: 'Обед', iconBg: 'rgba(179,6,224,0.16)', iconColor: '#B306E0' },
+      dinner: { title: 'Ужин', iconBg: 'rgba(229,106,212,0.16)', iconColor: '#E56AD4' },
+      snack: { title: 'Перекус', iconBg: 'rgba(255,255,255,0.08)', iconColor: 'rgba(255,255,255,0.7)' },
+    };
+    var mealKeys = showSnack ? ['breakfast', 'lunch', 'dinner', 'snack'] : ['breakfast', 'lunch', 'dinner'];
+    var mealsView = mealKeys.map(function(key) {
+      var arr = s.meals[key] || [];
+      var tot = arr.reduce(function(a, b) { return a + b.kcal; }, 0);
+      var rec = self.r(t.kcal * self.MEAL_PCT[key]);
+      return {
+        title: mealMeta[key].title, iconBg: mealMeta[key].iconBg, iconColor: mealMeta[key].iconColor,
+        sub: 'Рекомендуется ~' + rec + ' ккал',
+        hasItems: arr.length > 0,
+        totalLabel: tot > 0 ? tot + ' ккал' : '—',
+        totalStyle: tot > 0 ? 'color:#fff;' : 'color:rgba(255,255,255,0.35);font-weight:600;',
+        onAdd: (function(k) { return function() { self.openAdd(k); }; })(key),
+        items: arr.map(function(it, i) { return {
+          name: it.name,
+          detail: (it.grams ? it.grams + ' г · ' : '') + 'Б ' + it.p + ' · Ж ' + it.f + ' · У ' + it.c,
+          kcalLabel: it.kcal + ' ккал',
+          onRemove: (function(k, idx) { return function() { self.removeFood(k, idx); }; })(key, i),
+        }; }),
+      };
+    });
+
+    // ---- stats: use weightLog for charts ----
+    var today = this.todayKey();
+    var isWeightLoggedToday = s.todayWeightDate === today && s.todayWeightValue != null;
+
+    // Build weight series from weightLog
+    var wLog = (s.weightLog || []).slice();
+    if (isWeightLoggedToday && !wLog.find(function(w) { return w.date === today; })) {
+      wLog.push({ date: today, weight: s.todayWeightValue });
+    }
+    wLog.sort(function(a, b) { return a.date < b.date ? -1 : 1; });
+
+    var buildChart = function(pts0, W, H, pad) {
+      if (!pts0.length) return { line: '', area: '', dots: [], min: 0, max: 0 };
+      var ws = pts0.map(function(d) { return d.weight; });
+      var min = Math.min.apply(null, ws), max = Math.max.apply(null, ws);
+      var span = (max - min) || 1;
+      var xStep = pts0.length > 1 ? W / (pts0.length - 1) : 0;
+      var pts = pts0.map(function(d, i) {
+        var x = i * xStep;
+        var y = pad + (1 - (d.weight - min) / span) * (H - pad * 2);
+        return { x: +x.toFixed(1), y: +y.toFixed(1) };
+      });
+      var line = pts.map(function(p) { return p.x + ',' + p.y; }).join(' ');
+      var area = 'M' + pts[0].x + ',' + pts[0].y + ' ' + pts.slice(1).map(function(p) { return 'L' + p.x + ',' + p.y; }).join(' ')
+        + ' L' + pts[pts.length-1].x + ',' + H + ' L' + pts[0].x + ',' + H + ' Z';
+      var dots = pts.map(function(p) { return { cx: p.x, cy: p.y }; });
+      return { line: line, area: area, dots: dots, min: min, max: max };
+    };
+
+    var last = wLog.slice(-10);
+    var miniChart = buildChart(last, 320, 130, 12);
+    var fullSeries = wLog.slice(-30);
+    var bigChart = buildChart(fullSeries, 320, 160, 14);
+
+    var curWeight = wLog.length ? wLog[wLog.length-1].weight : s.weight;
+    var startW = last.length ? last[0].weight : curWeight;
+    var deltaVal = +(curWeight - startW).toFixed(1);
+    var deltaSign = deltaVal > 0 ? '+' : '';
+    var deltaGood = (s.goal === 'lose' && deltaVal < 0) || (s.goal === 'gain' && deltaVal > 0) || (s.goal === 'maintain' && Math.abs(deltaVal) < 1);
+
+    // Build history from s.history (API daily totals) + today
+    var histAll = (s.history || []).concat([{ date: today, kcal: totals.kcal, p: totals.p, f: totals.f, c: totals.c }]);
+    var recent = histAll.slice(-7).reverse();
+    var historyView = recent.map(function(h) {
+      var isToday = h.date === today;
+      var over = h.kcal > t.kcal * 1.05;
+      var under = h.kcal < t.kcal * 0.7;
+      var inNorm = !over && !under;
+      return {
+        dateLabel: self.dateShort(h.date),
+        dateStyle: isToday ? 'color:#ACEC03;' : 'color:#fff;',
+        kcal: h.kcal, target: t.kcal,
+        kcalStyle: over ? 'color:#E56AD4;font-weight:700;' : (inNorm ? 'color:#ACEC03;font-weight:700;' : 'color:#fff;font-weight:700;'),
+        barPct: Math.min(100, t.kcal ? (h.kcal / t.kcal) * 100 : 0) + '%',
+        barColor: over ? '#E56AD4' : 'linear-gradient(90deg,#B306E0,#ACEC03)',
+        p: self.r(h.p), f: self.r(h.f), c: self.r(h.c),
+      };
+    });
+    var avgKcal = histAll.length ? this.r(histAll.reduce(function(a,b) { return a + b.kcal; }, 0) / histAll.length) : 0;
+    var goalDays = histAll.filter(function(h) { return h.kcal >= t.kcal * 0.7 && h.kcal <= t.kcal * 1.05; }).length;
+
+    var calSeries = histAll.slice(-14);
+    var maxCal = Math.max(t.kcal * 1.15, Math.max.apply(null, calSeries.map(function(h) { return h.kcal; }).concat([1])));
+    var calBars = calSeries.map(function(h) { return {
+      h: Math.max(4, Math.round((h.kcal / maxCal) * 100)) + '%',
+      color: h.kcal > t.kcal * 1.05 ? '#E56AD4' : 'linear-gradient(180deg,#ACEC03,#B306E0)',
+    }; });
+    var calStartLabel = calSeries.length ? self.dateShort(calSeries[0].date) : '';
+    var calEndLabel = calSeries.length ? self.dateShort(calSeries[calSeries.length-1].date) : '';
+
+    // ---- add modal ----
+    var a = s.add;
+    var q = (a.query || '').toLowerCase().trim();
+    var filtered = this.PRODUCTS.map(function(pr, i) { return { pr: pr, i: i }; }).filter(function(x) { return !q || x.pr.name.toLowerCase().includes(q); });
+    var productsView = filtered.map(function(x) { return {
+      name: x.pr.name,
+      macroLabel: 'Б ' + x.pr.p + ' · Ж ' + x.pr.f + ' · У ' + x.pr.c + ' / 100 г',
+      kcalLabel: x.pr.kcal + ' ккал',
+      onSelect: (function(idx) { return function() { self.selectProduct(idx); }; })(x.i),
+    }; });
+    var sel = a.selected != null ? this.PRODUCTS[a.selected] : null;
+    var gk = a.grams / 100;
+    var portion = sel ? { kcal: this.r(sel.kcal * gk), p: +(sel.p * gk).toFixed(1), f: +(sel.f * gk).toFixed(1), c: +(sel.c * gk).toFixed(1) } : { kcal: 0, p: 0, f: 0, c: 0 };
+    var mealTitle = mealMeta[a.meal] ? mealMeta[a.meal].title : '';
+    var tabActive = 'flex:1;height:38px;border-radius:11px;font-size:14px;font-weight:600;transition:all .2s;background:#fff;color:#150b12;';
+    var tabIdle = 'flex:1;height:38px;border-radius:11px;font-size:14px;font-weight:600;transition:all .2s;background:transparent;color:rgba(255,255,255,0.55);';
+
+    // ---- nav ----
+    var navActive = 'color:#B306E0;';
+    var navIdle = 'color:rgba(255,255,255,0.4);';
+
+    // ---- profile params ----
+    var paramRows = [
+      { label: 'Возраст', value: s.age + ' лет', onDec: function() { self.bump('age', -1, 14, 90); }, onInc: function() { self.bump('age', 1, 14, 90); } },
+      { label: 'Вес', value: s.weight + ' кг', onDec: function() { self.bump('weight', -1, 40, 160); }, onInc: function() { self.bump('weight', 1, 40, 160); } },
+      { label: 'Рост', value: s.height + ' см', onDec: function() { self.bump('height', -1, 140, 210); }, onInc: function() { self.bump('height', 1, 140, 210); } },
+    ];
+
+    var streakDays = (s.history || []).length + 1;
+
+    return {
+      isOnboarding: isOnboarding, isApp: s.screen === 'app',
+      isStep0: s.step === 0, isStep1: s.step === 1, isStep2: s.step === 2, isStep6: s.step === 6, isStep7: s.step === 7,
+      isSliderStep: sliderStep,
+      showProgress: s.step >= 1 && s.step <= 6,
+      progressPct: (Math.min(6, s.step) / 6 * 100) + '%',
+      stepLabel: Math.min(6, s.step) + ' / 6',
+      onNext: this.next, onBack: this.back, onStart: this.start, onFinish: this.finish,
+      genderOptions: genderOptions, goalOptions: goalOptions, activityOptions: activityOptions,
+      sliderTitle: sCfg.title, sliderHint: sCfg.hint, sliderValue: sCfg.value, sliderUnit: sCfg.unit,
+      sliderMin: sCfg.min, sliderMax: sCfg.max, sliderStep: sCfg.step, onSlider: this.onSlider,
+      resTargets: t, resGoalLabel: goalLabelMap[s.goal],
+
+      // home
+      isHome: s.tab === 'home', isStats: s.tab === 'stats', isProfile: s.tab === 'profile',
+      greeting: greeting, userName: s.name || 'Гость', dateLabel: dateLabel,
+      streakLabel: streakDays + ' ' + this.plural(streakDays, ['день', 'дня', 'дней']) + ' подряд',
+      ringCirc: ringCirc.toFixed(1), ringOffset: (ringCirc * (1 - pct)).toFixed(1),
+      remainKcal: Math.abs(remain), remainLabel: remain >= 0 ? 'ккал осталось' : 'ккал сверх',
+      eatenKcal: totals.kcal, targetKcal: t.kcal,
+      remainKcalSigned: (remain >= 0 ? '' : '+') + Math.abs(remain),
+      remainColorStyle: remain >= 0 ? 'color:#fff;' : 'color:#E56AD4;',
+      macros: macros, mealsView: mealsView,
+
+      // stats
+      curWeight: this.fmtW(curWeight), weightDelta: deltaSign + this.fmtW(deltaVal) + ' кг',
+      deltaStyle: deltaGood ? 'color:#ACEC03;' : 'color:rgba(255,255,255,0.5);',
+      weightLine: miniChart.line, weightArea: miniChart.area, weightDots: miniChart.dots,
+      chartStartLabel: last.length ? this.dateShort(last[0].date) : '',
+      chartEndLabel: last.length ? this.dateShort(last[last.length-1].date) : '',
+      periodLabel: 'Последние ' + last.length + ' ' + this.plural(last.length, ['день', 'дня', 'дней']),
+      avgKcal: avgKcal, goalDaysLabel: goalDays + '/' + histAll.length,
+      historyView: historyView,
+
+      // weight log + detail
+      isWeightLoggedToday: isWeightLoggedToday, isWeightNotLogged: !isWeightLoggedToday,
+      todayWeightLabel: isWeightLoggedToday ? (this.fmtW(s.todayWeightValue) + ' кг') : '',
+      onOpenAddWeight: this.openWeightModal, onOpenStatsDetail: this.openStatsDetail,
+      weightModalOpen: s.weightModalOpen, weightDraft: s.weightDraft != null ? s.weightDraft : s.weight,
+      weightDraftLabel: this.fmtW(s.weightDraft != null ? s.weightDraft : s.weight),
+      onWeightDraft: this.onWeightDraft, onCloseWeightModal: this.closeWeightModal, onConfirmWeight: this.confirmWeight,
+      onClearTodayWeight: this.clearTodayWeight,
+      statsDetailOpen: s.statsDetailOpen, onCloseStatsDetail: this.closeStatsDetail,
+      weightLine2: bigChart.line, weightArea2: bigChart.area, weightDots2: bigChart.dots,
+      wMinLabel: this.fmtW(bigChart.min) + ' кг', wMaxLabel: this.fmtW(bigChart.max) + ' кг',
+      chartStartLabel2: fullSeries.length ? this.dateShort(fullSeries[0].date) : '',
+      chartEndLabel2: fullSeries.length ? this.dateShort(fullSeries[fullSeries.length-1].date) : '',
+      calBars: calBars, calStartLabel: calStartLabel, calEndLabel: calEndLabel,
+
+      // profile
+      initial: (s.name || 'Г').trim().charAt(0).toUpperCase(),
+      goalLabel: goalLabelMap[s.goal],
+      targetP: t.p, targetF: t.f, targetC: t.c,
+      paramRows: paramRows, onRecalc: this.recalc, onReset: this.reset,
+
+      // nav
+      goHome: function() { self.goTab('home'); },
+      goStats: function() { self.goTab('stats'); },
+      goProfile: function() { self.goTab('profile'); },
+      homeNavStyle: s.tab === 'home' ? navActive : navIdle,
+      statsNavStyle: s.tab === 'stats' ? navActive : navIdle,
+      profileNavStyle: s.tab === 'profile' ? navActive : navIdle,
+
+      // modal
+      addOpen: a.open, addMealTitle: 'Добавить · ' + mealTitle, addMealShort: mealTitle,
+      onCloseAdd: this.closeAdd, stop: function(e) { e.stopPropagation(); },
+      portionMode: a.selected != null, listMode: a.selected == null,
+      onTabList: function() { self.mergeAdd({ tab: 'list' }); },
+      onTabManual: function() { self.mergeAdd({ tab: 'manual' }); },
+      tabIsList: a.tab === 'list', tabIsManual: a.tab === 'manual',
+      tabListStyle: a.tab === 'list' ? tabActive : tabIdle,
+      tabManualStyle: a.tab === 'manual' ? tabActive : tabIdle,
+      query: a.query, onQuery: this.onQuery, productsView: productsView, noResults: productsView.length === 0,
+      selName: sel ? sel.name : '',
+      selPer100: sel ? (sel.kcal + ' ккал · Б ' + sel.p + ' Ж ' + sel.f + ' У ' + sel.c + ' / 100 г') : '',
+      grams: a.grams, onGrams: this.onGrams, portion: portion, onConfirm: this.confirmPortion, onBackList: this.backToList,
+      mName: a.mName, mKcal: a.mKcal, mGrams: a.mGrams, mP: a.mP, mF: a.mF, mC: a.mC,
+      onMName: function(e) { self.mergeAdd({ mName: e.target.value }); },
+      onMKcal: function(e) { self.mergeAdd({ mKcal: e.target.value }); },
+      onMGrams: function(e) { self.mergeAdd({ mGrams: e.target.value }); },
+      onMP: function(e) { self.mergeAdd({ mP: e.target.value }); },
+      onMF: function(e) { self.mergeAdd({ mF: e.target.value }); },
+      onMC: function(e) { self.mergeAdd({ mC: e.target.value }); },
+      onAddManual: this.addManual,
+    };
+  }
+}
+</script>
+</body>
+</html>
