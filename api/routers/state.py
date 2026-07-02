@@ -152,13 +152,21 @@ async def get_state(tg_user: dict = Depends(get_telegram_user)):
 @router.delete("/state")
 async def reset_state(tg_user: dict = Depends(get_telegram_user)):
     user_id: int = tg_user["id"]
-    today = date.today()
     async with AsyncSessionFactory() as session:
+        # Wipe all diary items and the full weight log for this user
         await session.execute(
-            delete(DiaryItem).where(DiaryItem.user_id == user_id, DiaryItem.date == today)
+            delete(DiaryItem).where(DiaryItem.user_id == user_id)
         )
         await session.execute(
-            delete(WeightLog).where(WeightLog.user_id == user_id, WeightLog.date == today)
+            delete(WeightLog).where(WeightLog.user_id == user_id)
         )
+        # Clear the profile targets so the Mini App shows onboarding again
+        user = await session.get(User, user_id)
+        if user:
+            user.goal = None
+            user.target_kcal = None
+            user.target_protein_g = None
+            user.target_fat_g = None
+            user.target_carbs_g = None
         await session.commit()
     return {"ok": True}

@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from db.database import AsyncSessionFactory
 from db.models import User
+from handlers.common import BTN_PROFILE
 from states import ProfileStates
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,7 @@ async def _save_user(user: User):
 
 
 @router.message(Command("profile"))
+@router.message(F.text == BTN_PROFILE)
 async def handle_profile(message: Message, state: FSMContext):
     user = await _get_user(message.from_user.id)
     if user and user.gender:

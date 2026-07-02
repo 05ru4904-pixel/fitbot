@@ -4,10 +4,14 @@ from io import BytesIO
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.types import Message, CallbackQuery
 
-from config import settings
-from handlers.common import build_composition_keyboard, format_composition_message
+from handlers.common import (
+    build_composition_keyboard,
+    format_composition_message,
+    main_menu_keyboard,
+    BTN_ANALYSIS,
+)
 from services import vision
 from states import FoodStates
 
@@ -27,22 +31,14 @@ ANALYSIS_TEXT = (
 )
 
 
-def _build_start_keyboard() -> InlineKeyboardMarkup:
-    buttons = [[InlineKeyboardButton(text="📸 Посчитать калории", callback_data="start_analysis")]]
-    if settings.webapp_url and not settings.webapp_url.startswith("https://example"):
-        buttons.append([
-            InlineKeyboardButton(text="📊 Открыть дневник", web_app=WebAppInfo(url=settings.webapp_url))
-        ])
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-
 @router.message(Command("start"))
 async def handle_start(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(WELCOME_TEXT, reply_markup=_build_start_keyboard())
+    await message.answer(WELCOME_TEXT, reply_markup=main_menu_keyboard())
 
 
 @router.message(Command("analysis"))
+@router.message(F.text == BTN_ANALYSIS)
 async def handle_analysis(message: Message, state: FSMContext):
     await state.set_state(FoodStates.waiting_for_photo)
     await message.answer(ANALYSIS_TEXT)

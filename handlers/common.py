@@ -1,4 +1,27 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+)
+
+# Labels for the persistent reply-keyboard menu (bottom of the chat).
+BTN_ANALYSIS = "📸 Посчитать калории"
+BTN_TODAY = "🍽 Сегодня"
+BTN_WEEK = "📊 Неделя"
+BTN_PROFILE = "👤 Профиль"
+
+
+def main_menu_keyboard() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text=BTN_ANALYSIS)],
+            [KeyboardButton(text=BTN_TODAY), KeyboardButton(text=BTN_WEEK)],
+            [KeyboardButton(text=BTN_PROFILE)],
+        ],
+        resize_keyboard=True,
+        is_persistent=True,
+    )
 
 
 def build_composition_keyboard() -> InlineKeyboardMarkup:

@@ -3,19 +3,21 @@ import logging
 from collections import defaultdict
 from datetime import date, timedelta
 
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from sqlalchemy import select
 
 from db.database import AsyncSessionFactory
 from db.models import Meal
+from handlers.common import BTN_TODAY, BTN_WEEK
 
 logger = logging.getLogger(__name__)
 router = Router()
 
 
 @router.message(Command("today"))
+@router.message(F.text == BTN_TODAY)
 async def handle_today(message: Message):
     today = date.today()
 
@@ -59,6 +61,7 @@ async def handle_today(message: Message):
 
 
 @router.message(Command("week"))
+@router.message(F.text == BTN_WEEK)
 async def handle_week(message: Message):
     today = date.today()
     week_ago = today - timedelta(days=6)

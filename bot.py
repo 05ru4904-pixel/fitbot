@@ -5,7 +5,7 @@ import os
 import uvicorn
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import BotCommand
+from aiogram.types import MenuButtonCommands, MenuButtonWebApp, WebAppInfo
 
 from api.main import app as webapp
 from config import settings
@@ -31,13 +31,19 @@ async def main():
     dp.include_router(profile.router)
     dp.include_router(diary.router)
 
-    await bot.set_my_commands([
-        BotCommand(command="start", description="Что умеет этот бот"),
-        BotCommand(command="analysis", description="Посчитать калории"),
-        BotCommand(command="profile", description="Мой профиль"),
-        BotCommand(command="today", description="Что я поел сегодня"),
-        BotCommand(command="week", description="Сводка за неделю"),
-    ])
+    # Remove the slash-command list; actions live on the reply keyboard instead.
+    await bot.delete_my_commands()
+
+    # Turn the chat menu button (≡, left of the input) into an "Open diary" Mini App launcher.
+    if settings.webapp_url and not settings.webapp_url.startswith("https://example"):
+        await bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(
+                text="Открыть дневник",
+                web_app=WebAppInfo(url=settings.webapp_url),
+            )
+        )
+    else:
+        await bot.set_chat_menu_button(menu_button=MenuButtonCommands())
 
     # Run the Mini App web server on the same service (Railway maps $PORT to the public domain)
     port = int(os.environ.get("PORT", 8000))
