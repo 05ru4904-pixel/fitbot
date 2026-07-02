@@ -1,10 +1,13 @@
 import asyncio
 import logging
+import os
 
+import uvicorn
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand
 
+from api.main import app as webapp
 from config import settings
 from db.database import init_db
 from handlers import correction, diary, photo, profile
@@ -36,9 +39,17 @@ async def main():
         BotCommand(command="week", description="Сводка за неделю"),
     ])
 
-    logger.info("Bot starting...")
+    # Run the Mini App web server on the same service (Railway maps $PORT to the public domain)
+    port = int(os.environ.get("PORT", 8000))
+    config = uvicorn.Config(webapp, host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config)
+
+    logger.info("Bot + Mini App starting on port %s...", port)
     try:
-        await dp.start_polling(bot)
+        await asyncio.gather(
+            dp.start_polling(bot),
+            server.serve(),
+        )
     finally:
         await bot.session.close()
         logger.info("Bot stopped.")
