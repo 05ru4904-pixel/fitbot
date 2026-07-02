@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="./support.js"></script>
+<!-- Served via FastAPI's /static mount (relative ./ paths 404 on the server).
+     React is self-hosted so the Mini App works even where CDNs are blocked;
+     support.js reuses window.React/ReactDOM if they're already loaded. -->
+<script src="/static/react.production.min.js"></script>
+<script src="/static/react-dom.production.min.js"></script>
+<script src="/static/support.js"></script>
 </head>
 <body>
 <x-dc>
@@ -723,11 +728,27 @@ class Component extends DCLogic {
   componentDidMount() {
     var self = this;
     var tg = this._tg;
-    if (tg) { if (tg.ready) tg.ready(); if (tg.expand) tg.expand(); }
+    if (tg) {
+      if (tg.ready) tg.ready();
+      if (tg.expand) tg.expand();
+      // Native Telegram "Back" button — always tappable, never hidden by the header.
+      if (tg.BackButton && tg.BackButton.onClick) {
+        tg.BackButton.onClick(function() { self._onTgBack(); });
+      }
+    }
+    this._syncBackButton();
+
+    var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
 
     this._apiCall('GET', '/state').then(function(data) {
-      if (data && data.targets) {
-        var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
+      // If the API is unreachable (data === null), fall back to the local cache.
+      if (data === null) {
+        if (tgName) self.setState({ name: tgName });
+        self._fromLocalStorage();
+        return;
+      }
+      // Server is the source of truth from here on.
+      if (data.targets) {
         self.setState({
           screen: 'app',
           name: data.name || tgName || 'Гость',
@@ -746,11 +767,42 @@ class Component extends DCLogic {
           add: self.state.add,
         });
       } else {
-        var tgName2 = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
-        if (tgName2) self.setState({ name: tgName2 });
-        self._fromLocalStorage();
+        // Server knows this user but has no profile yet → show onboarding.
+        // Drop any stale local cache so it can't resurrect an old profile.
+        try { localStorage.removeItem('fd_state_v1'); } catch (e) {}
+        self.setState({
+          screen: 'onboarding',
+          step: 0,
+          targets: null,
+          name: tgName || self.state.name,
+          meals: data.meals || { breakfast: [], lunch: [], dinner: [], snack: [] },
+          history: data.history || [],
+          weightLog: data.weightLog || [],
+        });
       }
     }).catch(function() { self._fromLocalStorage(); });
+  }
+
+  componentDidUpdate() {
+    this._syncBackButton();
+  }
+
+  // Show the native Telegram Back button whenever a full-screen overlay is open,
+  // so it can always be closed even if the in-app "‹" is under Telegram's header.
+  _syncBackButton() {
+    var tg = this._tg;
+    if (!tg || !tg.BackButton) return;
+    var s = this.state;
+    var overlayOpen = !!((s.add && s.add.open) || s.weightModalOpen || s.statsDetailOpen);
+    if (overlayOpen) { if (tg.BackButton.show) tg.BackButton.show(); }
+    else { if (tg.BackButton.hide) tg.BackButton.hide(); }
+  }
+
+  _onTgBack() {
+    var s = this.state;
+    if (s.add && s.add.open) { this.closeAdd(); return; }
+    if (s.weightModalOpen) { this.closeWeightModal(); return; }
+    if (s.statsDetailOpen) { this.closeStatsDetail(); return; }
   }
 
   _fromLocalStorage() {
