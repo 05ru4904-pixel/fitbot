@@ -33,13 +33,20 @@ WEBAPP_DIR = pathlib.Path(__file__).parent.parent / "webapp"
 if WEBAPP_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(WEBAPP_DIR)), name="static")
 
+    # Telegram's in-app WebView caches the entry HTML very aggressively, which would
+    # otherwise keep serving stale app logic after every deploy.
+    _NO_CACHE_HEADERS = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+    }
+
     @app.get("/")
     async def serve_index():
-        return FileResponse(str(WEBAPP_DIR / "index.html"))
+        return FileResponse(str(WEBAPP_DIR / "index.html"), headers=_NO_CACHE_HEADERS)
 
     @app.get("/app")
     async def serve_app():
-        return FileResponse(str(WEBAPP_DIR / "index.html"))
+        return FileResponse(str(WEBAPP_DIR / "index.html"), headers=_NO_CACHE_HEADERS)
 
 
 @app.on_event("startup")
