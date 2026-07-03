@@ -18,30 +18,56 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  /* ---- Design tokens (refreshed within the existing purple + lime family) ---- */
+  :root{
+    --bg:#160B14; --surface-1:#20121C; --surface-2:#2A1826;
+    --border:rgba(255,255,255,0.08);
+    --primary:#B306E0; --primary-bright:#C21EF0; --lime:#ACEC03;
+    --grad:linear-gradient(135deg,#B306E0,#ACEC03);
+    --text-hi:rgba(255,255,255,0.96); --text-mid:rgba(255,255,255,0.72); --text-lo:rgba(255,255,255,0.56);
+    --macro-p:#ACEC03; --macro-f:#E56AD4; --macro-c:#B306E0;
+    --r-sm:12px; --r-md:16px; --r-lg:24px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:#0b0609;}
+  /* Tabular figures everywhere so calorie/macro/weight numbers never jitter as they change. */
+  body{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"cv11" 1;}
   input,button,textarea{font-family:inherit;color:inherit;}
-  button{cursor:pointer;border:none;background:none;}
+  /* Layout-stable press feedback on every button (transform only). */
+  button{cursor:pointer;border:none;background:none;transition:transform .16s var(--ease),filter .16s var(--ease),background .16s var(--ease),opacity .16s var(--ease);}
+  button:active{transform:scale(.97);}
+  :focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px;}
   .fd-scroll::-webkit-scrollbar{width:0;height:0;}
   .fd-scroll{scrollbar-width:none;}
-  ::placeholder{color:rgba(255,255,255,0.32);}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:rgba(255,255,255,0.1);outline:none;}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;border-radius:50%;background:#1A0E17;border:3px solid #B306E0;box-shadow:0 0 0 5px rgba(179,6,224,0.18),0 6px 14px rgba(0,0,0,0.5);cursor:pointer;}
-  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#1A0E17;border:3px solid #B306E0;cursor:pointer;}
+  ::placeholder{color:rgba(255,255,255,0.5);}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:rgba(255,255,255,0.12);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;border-radius:50%;background:var(--surface-1);border:3px solid var(--primary);box-shadow:0 0 0 5px rgba(179,6,224,0.20),0 6px 14px rgba(0,0,0,0.5);cursor:pointer;transition:transform .12s var(--ease);}
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12);}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--surface-1);border:3px solid var(--primary);cursor:pointer;}
   input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   @keyframes fdFade{from{opacity:0;}to{opacity:1;}}
   @keyframes fdUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @keyframes fdRise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   @keyframes fdPop{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
   @keyframes fdSpin{to{transform:rotate(360deg);}}
+  /* Entrance helper + per-item stagger for the meal list. */
+  .fd-rise{animation:fdRise .34s var(--ease) both;}
+  .fd-rise:nth-child(2){animation-delay:.04s;} .fd-rise:nth-child(3){animation-delay:.08s;}
+  .fd-rise:nth-child(4){animation-delay:.12s;} .fd-rise:nth-child(5){animation-delay:.16s;}
+  /* Respect the OS "reduce motion" setting. */
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
+  }
 </style>
 </helmet>
 
-<div style="max-width:440px;margin:0 auto;min-height:100vh;background:#1A0E17;color:#fff;font-family:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;position:relative;overflow-x:hidden;">
+<div style="max-width:440px;margin:0 auto;min-height:100vh;background:#160B14;color:var(--text-hi);font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;position:relative;overflow-x:hidden;">
 
   <!-- ============ LOADING SPLASH ============ -->
   <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
-  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1A0E17;">
-    <div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);border-top-color:#B306E0;animation:fdSpin 0.8s linear infinite;"></div>
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);">
+    <div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);border-top-color:var(--primary);animation:fdSpin 0.8s linear infinite;"></div>
   </div>
   </sc-if>
 
@@ -127,7 +153,7 @@
         </div>
         <div style="width:100%;">
           <input type="range" min="{{ sliderMin }}" max="{{ sliderMax }}" step="{{ sliderStep }}" value="{{ sliderValue }}" onInput="{{ onSlider }}" style="accent-color:#B306E0;">
-          <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+          <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.56);font-family:'Manrope',sans-serif;">
             <span>{{ sliderMin }}</span><span>{{ sliderMax }}</span>
           </div>
         </div>
@@ -146,7 +172,7 @@
           <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyle }}">
             <div style="text-align:left;">
               <div style="font-size:16px;font-weight:600;margin-bottom:1px;">{{ opt.label }}</div>
-              <div style="font-size:12.5px;color:rgba(255,255,255,0.48);">{{ opt.desc }}</div>
+              <div style="font-size:12.5px;color:rgba(255,255,255,0.6);">{{ opt.desc }}</div>
             </div>
             <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
           </button>
@@ -217,8 +243,8 @@
                   <stop offset="1" stop-color="#ACEC03"></stop>
                 </linearGradient>
               </defs>
-              <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12"></circle>
-              <circle cx="64" cy="64" r="54" fill="none" stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ ringCirc }}" stroke-dashoffset="{{ ringOffset }}" style="transition:stroke-dashoffset .5s ease;"></circle>
+              <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="12"></circle>
+              <circle cx="64" cy="64" r="54" fill="none" stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ ringCirc }}" stroke-dashoffset="{{ ringOffset }}" style="transition:stroke-dashoffset .6s var(--ease);filter:drop-shadow(0 0 5px rgba(179,6,224,0.45));"></circle>
             </svg>
             <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
               <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:30px;line-height:1;letter-spacing:-0.5px;">{{ remainKcal }}</div>
@@ -262,7 +288,7 @@
         <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;margin-bottom:14px;padding-left:4px;">Рацион на день</div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <sc-for list="{{ mealsView }}" as="meal" hint-placeholder-count="4">
-            <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:22px;overflow:hidden;">
+            <div class="fd-rise" style="background:var(--surface-1);border:1px solid var(--border);border-radius:22px;overflow:hidden;">
               <div style="display:flex;align-items:center;gap:12px;padding:15px 16px;">
                 <div style="width:40px;height:40px;border-radius:13px;background:{{ meal.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <div style="width:16px;height:16px;border-radius:5px;background:{{ meal.iconColor }};"></div>
@@ -282,7 +308,7 @@
                       <div style="font-size:12px;color:rgba(255,255,255,0.4);">{{ it.detail }}</div>
                     </div>
                     <div style="font-family:'Manrope',sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">{{ it.kcalLabel }}</div>
-                    <button onClick="{{ it.onRemove }}" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+                    <button onClick="{{ it.onRemove }}" aria-label="Удалить" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--text-mid);font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>
                   </div>
                 </sc-for>
               </div>
@@ -335,13 +361,16 @@
               <stop offset="1" stop-color="rgba(179,6,224,0)"></stop>
             </linearGradient>
           </defs>
+          <line x1="0" y1="20" x2="320" y2="20" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
+          <line x1="0" y1="65" x2="320" y2="65" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
+          <line x1="0" y1="110" x2="320" y2="110" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
           <path d="{{ weightArea }}" fill="url(#wGrad)"></path>
           <polyline points="{{ weightLine }}" fill="none" stroke="#ACEC03" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
           <sc-for list="{{ weightDots }}" as="d" hint-placeholder-count="0">
-            <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3" fill="#1A0E17" stroke="#ACEC03" stroke-width="2"></circle>
+            <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3" fill="#20121C" stroke="#ACEC03" stroke-width="2"></circle>
           </sc-for>
         </svg>
-        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.56);font-family:'Manrope',sans-serif;">
           <span>{{ chartStartLabel }}</span><span>{{ chartEndLabel }}</span>
         </div>
         <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);font-size:12.5px;color:#B306E0;font-weight:600;">Подробнее ›</div>
@@ -366,7 +395,7 @@
           <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px 16px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
               <span style="font-size:14.5px;font-weight:600;{{ h.dateStyle }}">{{ h.dateLabel }}</span>
-              <span style="font-family:'Manrope',sans-serif;font-size:14px;"><span style="{{ h.kcalStyle }}">{{ h.kcal }}</span><span style="color:rgba(255,255,255,0.35);"> / {{ h.target }} ккал</span></span>
+              <span style="font-family:'Manrope',sans-serif;font-size:14px;"><span style="{{ h.kcalStyle }}">{{ h.kcal }}</span><span style="color:rgba(255,255,255,0.56);"> / {{ h.target }} ккал</span></span>
             </div>
             <div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.07);overflow:hidden;margin-bottom:10px;">
               <div style="height:100%;width:{{ h.barPct }};border-radius:99px;background:{{ h.barColor }};"></div>
@@ -422,9 +451,9 @@
           <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
             <span style="font-size:15px;color:rgba(255,255,255,0.75);">{{ p.label }}</span>
             <div style="display:flex;align-items:center;gap:14px;">
-              <button onClick="{{ p.onDec }}" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.06);color:#fff;font-size:18px;line-height:1;">−</button>
+              <button onClick="{{ p.onDec }}" aria-label="Уменьшить" style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.06);color:var(--text-hi);font-size:20px;line-height:1;">−</button>
               <span style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;min-width:56px;text-align:center;">{{ p.value }}</span>
-              <button onClick="{{ p.onInc }}" style="width:32px;height:32px;border-radius:10px;background:rgba(179,6,224,0.15);color:#B306E0;font-size:18px;line-height:1;">+</button>
+              <button onClick="{{ p.onInc }}" aria-label="Увеличить" style="width:40px;height:40px;border-radius:12px;background:rgba(179,6,224,0.15);color:var(--primary-bright);font-size:20px;line-height:1;">+</button>
             </div>
           </div>
         </sc-for>
@@ -599,7 +628,7 @@
           <span style="font-family:'Manrope',sans-serif;font-size:18px;color:#ACEC03;"> кг</span>
         </div>
         <input type="range" min="40" max="160" step="0.1" value="{{ weightDraft }}" onInput="{{ onWeightDraft }}" style="accent-color:#B306E0;margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:22px;font-size:12px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:22px;font-size:12px;color:rgba(255,255,255,0.56);font-family:'Manrope',sans-serif;">
           <span>40</span><span>160</span>
         </div>
         <button onClick="{{ onConfirmWeight }}" style="width:100%;height:54px;border-radius:16px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;">Сохранить</button>
@@ -635,10 +664,10 @@
             <path d="{{ weightArea2 }}" fill="url(#wGrad2)"></path>
             <polyline points="{{ weightLine2 }}" fill="none" stroke="#ACEC03" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
             <sc-for list="{{ weightDots2 }}" as="d" hint-placeholder-count="0">
-              <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3.5" fill="#1A0E17" stroke="#ACEC03" stroke-width="2"></circle>
+              <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="3.5" fill="#20121C" stroke="#ACEC03" stroke-width="2"></circle>
             </sc-for>
           </svg>
-          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.56);font-family:'Manrope',sans-serif;">
             <span>{{ chartStartLabel2 }}</span><span>{{ chartEndLabel2 }}</span>
           </div>
         </div>
@@ -656,7 +685,7 @@
               </div>
             </sc-for>
           </div>
-          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.35);font-family:'Manrope',sans-serif;">
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:rgba(255,255,255,0.56);font-family:'Manrope',sans-serif;">
             <span>{{ calStartLabel }}</span><span>{{ calEndLabel }}</span>
           </div>
         </div>
@@ -751,6 +780,16 @@ class Component extends DCLogic {
 
   // ---- API helpers ----
   get _tg() { return window.Telegram && window.Telegram.WebApp; }
+
+  // Light tactile feedback on confirmations (no-op outside Telegram).
+  _haptic(kind) {
+    try {
+      var h = this._tg && this._tg.HapticFeedback;
+      if (!h) return;
+      if (kind === 'success' && h.notificationOccurred) h.notificationOccurred('success');
+      else if (h.impactOccurred) h.impactOccurred(kind || 'light');
+    } catch (e) {}
+  }
 
   _apiCall(method, path, body) {
     const headers = { 'Content-Type': 'application/json' };
@@ -949,6 +988,7 @@ class Component extends DCLogic {
     var tg = this._tg;
     var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
     var name = this.state.name || tgName || 'Гость';
+    this._haptic('success');
     this.setState({
       screen: 'app', tab: 'home', targets: t, history: [], name: name,
       meals: this.props.seedToday ? this.sampleMeals() : this.state.meals,
@@ -972,6 +1012,7 @@ class Component extends DCLogic {
 
   // ---- food ----
   addFood = (meal, item) => {
+    this._haptic('light');
     this.setState((s) => ({ meals: Object.assign({}, s.meals, { [meal]: s.meals[meal].concat([item]) }) }), () => {
       this.save();
       this._syncMeals();
@@ -1017,6 +1058,7 @@ class Component extends DCLogic {
     var today = this.todayKey();
     // Add to local weight log
     var self = this;
+    this._haptic('success');
     this.setState(function(s) {
       var wLog = s.weightLog.filter(function(w) { return w.date !== today; });
       wLog.push({ date: today, weight: v });
@@ -1179,7 +1221,7 @@ class Component extends DCLogic {
         sub: 'Рекомендуется ~' + rec + ' ккал',
         hasItems: arr.length > 0,
         totalLabel: tot > 0 ? tot + ' ккал' : '—',
-        totalStyle: tot > 0 ? 'color:#fff;' : 'color:rgba(255,255,255,0.35);font-weight:600;',
+        totalStyle: tot > 0 ? 'color:#fff;' : 'color:rgba(255,255,255,0.56);font-weight:600;',
         onAdd: (function(k) { return function() { self.openAdd(k); }; })(key),
         items: arr.map(function(it, i) { return {
           name: it.name,
