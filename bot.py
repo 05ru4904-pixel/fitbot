@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import time
 
 import uvicorn
 from aiogram import Bot, Dispatcher
@@ -35,11 +36,15 @@ async def main():
     await bot.delete_my_commands()
 
     # Turn the chat menu button (≡, left of the input) into an "Open diary" Mini App launcher.
+    # Telegram's client can keep a previously opened Mini App's WebView alive in memory and
+    # just re-show it on next tap, ignoring HTTP cache headers entirely. Appending a
+    # per-deploy version query param forces it to treat this as a genuinely new URL.
     if settings.webapp_url and not settings.webapp_url.startswith("https://example"):
+        versioned_url = f"{settings.webapp_url}?v={int(time.time())}"
         await bot.set_chat_menu_button(
             menu_button=MenuButtonWebApp(
                 text="Открыть дневник",
-                web_app=WebAppInfo(url=settings.webapp_url),
+                web_app=WebAppInfo(url=versioned_url),
             )
         )
     else:
