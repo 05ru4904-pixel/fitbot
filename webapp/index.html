@@ -670,6 +670,17 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860},&quot;startOnHome&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Открыть сразу главный экран&quot;},&quot;seedToday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Заполнить рацион примером&quot;},&quot;enableSnack&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Рацион&quot;,&quot;label&quot;:&quot;Показывать «Перекус»&quot;}}">
+// The diary is per Telegram account, but localStorage is shared by every account that
+// opens the Mini App on this device — scope the cache key by Telegram user id so one
+// person's diary can never be shown to another person on a shared/borrowed phone.
+function _fdStorageKey() {
+  try {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var uid = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id;
+    return uid ? ('fd_state_v1_' + uid) : 'fd_state_v1_anon';
+  } catch (e) { return 'fd_state_v1_anon'; }
+}
+
 class Component extends DCLogic {
   state = (function() {
     var defaults = {
@@ -698,7 +709,7 @@ class Component extends DCLogic {
     // Registered users: hydrate instantly from the last cached profile so the
     // main screen appears immediately while the server refreshes in background.
     try {
-      var saved = JSON.parse(localStorage.getItem('fd_state_v1') || 'null');
+      var saved = JSON.parse(localStorage.getItem(_fdStorageKey()) || 'null');
       if (saved && saved.targets) {
         return Object.assign(defaults, saved, {
           screen: 'app',
@@ -796,7 +807,7 @@ class Component extends DCLogic {
       } else {
         // Server knows this user but has no profile yet → show onboarding.
         // Drop any stale local cache so it can't resurrect an old profile.
-        try { localStorage.removeItem('fd_state_v1'); } catch (e) {}
+        try { localStorage.removeItem(_fdStorageKey()); } catch (e) {}
         self.setState({
           screen: 'onboarding',
           step: 0,
@@ -836,7 +847,7 @@ class Component extends DCLogic {
     var tg = this._tg;
     var tgName = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name;
     try {
-      var saved = JSON.parse(localStorage.getItem('fd_state_v1') || 'null');
+      var saved = JSON.parse(localStorage.getItem(_fdStorageKey()) || 'null');
       if (saved && saved.targets) {
         this.setState(Object.assign({}, saved, { screen: 'app', add: this.state.add, name: saved.name || tgName || 'Гость' }));
         return;
@@ -885,7 +896,7 @@ class Component extends DCLogic {
   save(extra) {
     var s = Object.assign({}, this.state, extra || {});
     try {
-      localStorage.setItem('fd_state_v1', JSON.stringify({
+      localStorage.setItem(_fdStorageKey(), JSON.stringify({
         screen: 'app', tab: s.tab, gender: s.gender, goal: s.goal, age: s.age, weight: s.weight,
         height: s.height, activity: s.activity, name: s.name, targets: s.targets, meals: s.meals,
         history: s.history, weightLog: s.weightLog,
@@ -1045,7 +1056,7 @@ class Component extends DCLogic {
     });
   };
   reset = () => {
-    try { localStorage.removeItem('fd_state_v1'); } catch(e) {}
+    try { localStorage.removeItem(_fdStorageKey()); } catch(e) {}
     this._apiCall('DELETE', '/state');
     this.setState({ screen: 'onboarding', step: 0, targets: null,
       meals: { breakfast: [], lunch: [], dinner: [], snack: [] }, history: [], weightLog: [] });
