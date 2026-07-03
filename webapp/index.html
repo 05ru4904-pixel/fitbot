@@ -32,10 +32,18 @@
   @keyframes fdFade{from{opacity:0;}to{opacity:1;}}
   @keyframes fdUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
   @keyframes fdPop{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
+  @keyframes fdSpin{to{transform:rotate(360deg);}}
 </style>
 </helmet>
 
 <div style="max-width:440px;margin:0 auto;min-height:100vh;background:#1A0E17;color:#fff;font-family:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;position:relative;overflow-x:hidden;">
+
+  <!-- ============ LOADING SPLASH ============ -->
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1A0E17;">
+    <div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);border-top-color:#B306E0;animation:fdSpin 0.8s linear infinite;"></div>
+  </div>
+  </sc-if>
 
   <!-- ============ ONBOARDING ============ -->
   <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ true }}">
@@ -663,29 +671,48 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:860},&quot;startOnHome&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Открыть сразу главный экран&quot;},&quot;seedToday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;,&quot;label&quot;:&quot;Заполнить рацион примером&quot;},&quot;enableSnack&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Рацион&quot;,&quot;label&quot;:&quot;Показывать «Перекус»&quot;}}">
 class Component extends DCLogic {
-  state = {
-    screen: 'onboarding',
-    step: 0,
-    tab: 'home',
-    gender: 'female',
-    goal: 'lose',
-    age: 28,
-    weight: 68,
-    height: 168,
-    activity: 'moderate',
-    name: '',
-    targets: null,
-    meals: { breakfast: [], lunch: [], dinner: [], snack: [] },
-    history: [],
-    weightLog: [],
-    todayWeightDate: null,
-    todayWeightValue: null,
-    weightModalOpen: false,
-    weightDraft: null,
-    statsDetailOpen: false,
-    add: { open: false, meal: 'breakfast', tab: 'list', selected: null, grams: 100, query: '',
-           mName: '', mGrams: '', mKcal: '', mP: '', mF: '', mC: '' },
-  };
+  state = (function() {
+    var defaults = {
+      screen: 'onboarding',
+      step: 0,
+      tab: 'home',
+      gender: 'female',
+      goal: 'lose',
+      age: 28,
+      weight: 68,
+      height: 168,
+      activity: 'moderate',
+      name: '',
+      targets: null,
+      meals: { breakfast: [], lunch: [], dinner: [], snack: [] },
+      history: [],
+      weightLog: [],
+      todayWeightDate: null,
+      todayWeightValue: null,
+      weightModalOpen: false,
+      weightDraft: null,
+      statsDetailOpen: false,
+      add: { open: false, meal: 'breakfast', tab: 'list', selected: null, grams: 100, query: '',
+             mName: '', mGrams: '', mKcal: '', mP: '', mF: '', mC: '' },
+    };
+    // Registered users: hydrate instantly from the last cached profile so the
+    // main screen appears immediately while the server refreshes in background.
+    try {
+      var saved = JSON.parse(localStorage.getItem('fd_state_v1') || 'null');
+      if (saved && saved.targets) {
+        return Object.assign(defaults, saved, {
+          screen: 'app',
+          add: defaults.add,
+          weightModalOpen: false,
+          statsDetailOpen: false,
+        });
+      }
+    } catch (e) {}
+    // Unknown user: neutral splash until the server answers — avoids flashing the
+    // onboarding "Начать" screen at people who are in fact already registered.
+    defaults.screen = 'loading';
+    return defaults;
+  })();
 
   get ACT() { return { sedentary: 1.2, light: 1.375, moderate: 1.55, high: 1.725, veryhigh: 1.9 }; }
   get MEAL_PCT() { return { breakfast: 0.30, lunch: 0.35, dinner: 0.25, snack: 0.10 }; }
@@ -820,6 +847,9 @@ class Component extends DCLogic {
       var t = this.calc(this.state);
       this.setState({ screen: 'app', targets: t, history: [], name: this.state.name || 'Гость',
         meals: this.props.seedToday ? this.sampleMeals() : this.state.meals });
+    } else {
+      // No cached profile and nothing to restore → begin onboarding (leave the splash).
+      this.setState({ screen: 'onboarding', step: 0 });
     }
   }
 
@@ -1250,7 +1280,7 @@ class Component extends DCLogic {
     var streakDays = (s.history || []).length + 1;
 
     return {
-      isOnboarding: isOnboarding, isApp: s.screen === 'app',
+      isOnboarding: isOnboarding, isApp: s.screen === 'app', isLoading: s.screen === 'loading',
       isStep0: s.step === 0, isStep1: s.step === 1, isStep2: s.step === 2, isStep6: s.step === 6, isStep7: s.step === 7,
       isSliderStep: sliderStep,
       showProgress: s.step >= 1 && s.step <= 6,
