@@ -10,8 +10,10 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 
 from api.auth import get_telegram_user
+from api.routers.goal import profile_kwargs
 from db.database import AsyncSessionFactory
-from db.models import WeightLog
+from db.models import User, WeightLog
+from services.goal_plan import compute_plan
 
 router = APIRouter()
 
@@ -44,6 +46,24 @@ async def log_weight(
             row.weight_kg = payload.weight
         else:
             session.add(WeightLog(user_id=user_id, date=log_date, weight_kg=payload.weight))
+
+        # Safeguard #4: today's weight becomes the current weight; if the user has an
+        # active goal, recompute the calorie target from the new weight.
+        if log_date == date.today():
+            user = await session.get(User, user_id)
+            if user is not None:
+                user.weight_kg = payload.weight
+                if user.goal in ("lose", "gain") and user.target_weight_kg and user.pace_kg_per_week:
+                    plan = compute_plan(
+                        target_weight=user.target_weight_kg,
+                        pace=user.pace_kg_per_week,
+                        **profile_kwargs(user, weight_override=payload.weight),
+                    )
+                    user.target_kcal = plan["daily_kcal"]
+                    user.target_protein_g = plan["macros"]["p"]
+                    user.target_fat_g = plan["macros"]["f"]
+                    user.target_carbs_g = plan["macros"]["c"]
+
         await session.commit()
 
     return {"ok": True}

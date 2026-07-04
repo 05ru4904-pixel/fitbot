@@ -154,6 +154,8 @@ async def get_state(tg_user: dict = Depends(get_telegram_user)):
         "weight": user.weight_kg or 70,
         "height": user.height_cm or 170,
         "activity": user.activity_level or "moderate",
+        "targetWeight": user.target_weight_kg,
+        "pace": user.pace_kg_per_week,
         "targets": targets,
         "meals": meals,
         "history": history,

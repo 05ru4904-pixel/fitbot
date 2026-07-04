@@ -9,7 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from api.routers import meals, profile_api, state, weight
+from api.routers import goal, meals, profile_api, state, weight
 import db.models  # noqa: F401 — must be imported so SQLAlchemy registers all tables
 
 logger = logging.getLogger(__name__)
@@ -36,6 +36,7 @@ app.include_router(state.router, prefix="/api")
 app.include_router(meals.router, prefix="/api")
 app.include_router(weight.router, prefix="/api")
 app.include_router(profile_api.router, prefix="/api")
+app.include_router(goal.router, prefix="/api")
 
 # Serve webapp static files
 WEBAPP_DIR = pathlib.Path(__file__).parent.parent / "webapp"

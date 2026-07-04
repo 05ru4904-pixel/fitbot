@@ -444,6 +444,22 @@
         </div>
       </div>
 
+      <!-- goal card (only for lose/gain) -->
+      <sc-if value="{{ showGoalCard }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ onOpenGoal }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,rgba(179,6,224,0.16),rgba(172,236,3,0.05));border:1px solid rgba(179,6,224,0.28);border-radius:20px;padding:16px 18px;margin-bottom:18px;">
+        <div style="width:44px;height:44px;border-radius:14px;background:rgba(172,236,3,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:18px;height:18px;border-radius:50%;border:2.5px solid #ACEC03;position:relative;">
+            <div style="position:absolute;inset:4px;border-radius:50%;background:#ACEC03;"></div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;">Моя цель</div>
+          <div style="font-size:12.5px;color:var(--text-lo);margin-top:2px;">{{ goalCardSub }}</div>
+        </div>
+        <div style="color:var(--text-lo);font-size:22px;line-height:1;flex-shrink:0;">›</div>
+      </button>
+      </sc-if>
+
       <!-- editable params -->
       <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;margin:0 0 12px;padding-left:4px;">Параметры</div>
       <div style="background:#20121C;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:6px 16px;margin-bottom:16px;">
@@ -693,6 +709,85 @@
     </div>
     </sc-if>
 
+    <!-- ---- GOAL ---- -->
+    <sc-if value="{{ goalOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="fd-scroll" style="position:fixed;inset:0;z-index:65;background:var(--bg);overflow-y:auto;">
+      <div style="max-width:440px;margin:0 auto;padding:22px 16px calc(30px + env(safe-area-inset-bottom));min-height:100vh;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <button onClick="{{ onCloseGoal }}" aria-label="Назад" style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.06);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;">‹</button>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:22px;">Моя цель</div>
+        </div>
+
+        <div style="font-size:13px;color:var(--text-lo);margin-bottom:6px;padding-left:4px;">Желаемый вес</div>
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:20px;padding:20px 18px;margin-bottom:16px;">
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:18px;">
+            <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:52px;line-height:1;letter-spacing:-1.5px;">{{ goalTargetWeight }}</span>
+            <span style="font-family:'Manrope',sans-serif;font-weight:600;font-size:18px;color:#ACEC03;">кг</span>
+          </div>
+          <input type="range" min="40" max="150" step="1" value="{{ goalTargetWeight }}" onInput="{{ onGoalTarget }}" style="accent-color:#B306E0;">
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--text-lo);">
+            <span>40</span><span>150</span>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:var(--text-lo);margin-bottom:8px;padding-left:4px;">Темп</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+          <sc-for list="{{ paceOptions }}" as="opt" hint-placeholder-count="4">
+            <button onClick="{{ opt.onSelect }}" style="{{ opt.rowStyleSm }}">
+              <div style="text-align:left;">
+                <div style="font-size:15px;font-weight:600;">{{ opt.label }}</div>
+                <div style="font-size:12px;color:var(--text-lo);margin-top:1px;">{{ opt.sub }}</div>
+              </div>
+              <div style="{{ opt.dotStyle }}">{{ opt.check }}</div>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="flex:1;">
+            <div style="font-size:14.5px;font-weight:600;">Хочу за срок</div>
+            <div style="font-size:12px;color:var(--text-lo);margin-top:1px;">Необязательно · система подберёт темп</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
+            <input type="number" inputmode="numeric" placeholder="—" value="{{ goalDesiredWeeks }}" onInput="{{ onGoalWeeks }}" style="width:64px;height:44px;text-align:center;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;">
+            <span style="font-size:13px;color:var(--text-lo);">нед</span>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(150deg,rgba(179,6,224,0.20),rgba(172,236,3,0.05));border:1px solid rgba(179,6,224,0.3);border-radius:24px;padding:24px 20px;margin-bottom:14px;text-align:center;">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-lo);margin-bottom:8px;">Дневная норма</div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:52px;line-height:1;letter-spacing:-1px;background:linear-gradient(120deg,#fff,#ACEC03);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ goalResultKcal }}</div>
+          <div style="font-size:13px;color:var(--text-mid);margin-top:6px;">ккал в день</div>
+          <div style="display:flex;justify-content:center;gap:24px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+            <div>
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;">{{ goalResultWeeks }}</div>
+              <div style="font-size:11px;color:var(--text-lo);margin-top:2px;">срок</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.08);"></div>
+            <div>
+              <div style="font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;color:#ACEC03;">{{ goalResultPace }}</div>
+              <div style="font-size:11px;color:var(--text-lo);margin-top:2px;">темп</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-lo);margin-top:12px;">{{ goalResultDate }}</div>
+        </div>
+
+        <sc-if value="{{ goalHasWarnings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <sc-for list="{{ goalWarnings }}" as="w" hint-placeholder-count="0">
+            <div style="display:flex;gap:10px;background:rgba(245,181,71,0.10);border:1px solid rgba(245,181,71,0.28);border-radius:14px;padding:12px 14px;">
+              <div style="color:#F5B547;font-size:15px;line-height:1.35;flex-shrink:0;">!</div>
+              <div style="font-size:13px;line-height:1.4;color:var(--text-mid);">{{ w.message }}</div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <button onClick="{{ onSaveGoal }}" style="width:100%;height:56px;border-radius:18px;background:linear-gradient(135deg,#B306E0,#ACEC03);color:#0f0710;font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;box-shadow:0 14px 30px rgba(179,6,224,0.35);">Сохранить цель</button>
+      </div>
+    </div>
+    </sc-if>
+
   </div>
   </sc-if>
 
@@ -732,6 +827,14 @@ class Component extends DCLogic {
       weightModalOpen: false,
       weightDraft: null,
       statsDetailOpen: false,
+      targetWeight: null,
+      pace: null,
+      goalOpen: false,
+      goalTargetWeight: null,
+      goalPaceMode: 'moderate',
+      goalDesiredWeeks: '',
+      goalPlan: null,
+      goalLoading: false,
       add: { open: false, meal: 'breakfast', tab: 'list', selected: null, grams: 100, query: '',
              mName: '', mGrams: '', mKcal: '', mP: '', mF: '', mC: '' },
     };
@@ -745,6 +848,8 @@ class Component extends DCLogic {
           add: defaults.add,
           weightModalOpen: false,
           statsDetailOpen: false,
+          goalOpen: false,
+          goalPlan: null,
         });
       }
     } catch (e) {}
@@ -835,6 +940,8 @@ class Component extends DCLogic {
           weight: data.weight || self.state.weight,
           height: data.height || self.state.height,
           activity: data.activity || self.state.activity,
+          targetWeight: data.targetWeight != null ? data.targetWeight : self.state.targetWeight,
+          pace: data.pace != null ? data.pace : self.state.pace,
           targets: data.targets,
           meals: data.meals || self.state.meals,
           history: data.history || [],
@@ -870,7 +977,7 @@ class Component extends DCLogic {
     var tg = this._tg;
     if (!tg || !tg.BackButton) return;
     var s = this.state;
-    var overlayOpen = !!((s.add && s.add.open) || s.weightModalOpen || s.statsDetailOpen);
+    var overlayOpen = !!((s.add && s.add.open) || s.weightModalOpen || s.statsDetailOpen || s.goalOpen);
     if (overlayOpen) { if (tg.BackButton.show) tg.BackButton.show(); }
     else { if (tg.BackButton.hide) tg.BackButton.hide(); }
   }
@@ -880,6 +987,7 @@ class Component extends DCLogic {
     if (s.add && s.add.open) { this.closeAdd(); return; }
     if (s.weightModalOpen) { this.closeWeightModal(); return; }
     if (s.statsDetailOpen) { this.closeStatsDetail(); return; }
+    if (s.goalOpen) { this.closeGoal(); return; }
   }
 
   _fromLocalStorage() {
@@ -1082,6 +1190,65 @@ class Component extends DCLogic {
   openStatsDetail = () => this.setState({ statsDetailOpen: true });
   closeStatsDetail = () => this.setState({ statsDetailOpen: false });
 
+  // ---- goal ----
+  _paceToMode = (pace) => {
+    if (pace == null) return 'moderate';
+    var modes = [['light', 0.25], ['moderate', 0.5], ['good', 0.75], ['aggressive', 1.0]];
+    var best = 'moderate', bd = 1e9;
+    modes.forEach(function(m) { var d = Math.abs(m[1] - pace); if (d < bd) { bd = d; best = m[0]; } });
+    return best;
+  };
+  openGoal = () => {
+    var s = this.state;
+    var cur = s.weight || 70;
+    var tw = s.targetWeight != null ? s.targetWeight : (s.goal === 'gain' ? cur + 5 : cur - 5);
+    this.setState({
+      goalOpen: true,
+      goalTargetWeight: Math.round(tw),
+      goalPaceMode: this._paceToMode(s.pace),
+      goalDesiredWeeks: '',
+      goalPlan: null,
+    }, this._previewGoal);
+  };
+  closeGoal = () => this.setState({ goalOpen: false });
+  _goalBody = () => {
+    var s = this.state;
+    var body = { target_weight: s.goalTargetWeight };
+    var wk = parseInt(s.goalDesiredWeeks, 10);
+    if (wk && wk > 0) body.desired_weeks = wk; else body.pace_mode = s.goalPaceMode;
+    return body;
+  };
+  _previewGoal = () => {
+    var self = this;
+    this.setState({ goalLoading: true });
+    this._apiCall('POST', '/goal/preview', this._goalBody()).then(function(plan) {
+      self.setState({ goalPlan: plan || self.state.goalPlan, goalLoading: false });
+    });
+  };
+  _previewGoalDebounced = () => {
+    var self = this;
+    clearTimeout(this._goalTimer);
+    this._goalTimer = setTimeout(function() { self._previewGoal(); }, 220);
+  };
+  setGoalTarget = (e) => this.setState({ goalTargetWeight: +e.target.value }, this._previewGoalDebounced);
+  setGoalPace = (mode) => this.setState({ goalPaceMode: mode, goalDesiredWeeks: '' }, this._previewGoal);
+  setGoalWeeks = (e) => this.setState({ goalDesiredWeeks: e.target.value }, this._previewGoalDebounced);
+  saveGoal = () => {
+    var self = this, tw = this.state.goalTargetWeight;
+    this._haptic('success');
+    this._apiCall('PUT', '/goal', this._goalBody()).then(function(plan) {
+      if (!plan) return;
+      self.setState({
+        goalOpen: false,
+        goal: plan.direction,
+        targetWeight: tw,
+        pace: plan.requested_pace_kg_per_week,
+        targets: { kcal: plan.daily_kcal, p: plan.macros.p, f: plan.macros.f, c: plan.macros.c },
+        goalPlan: plan,
+      }, function() { self.save(); });
+    });
+  };
+
   // ---- profile ----
   bump = (field, d, min, max) => {
     this.setState((s) => ({ [field]: Math.max(min, Math.min(max, s[field] + d)) }), () => {
@@ -1125,6 +1292,10 @@ class Component extends DCLogic {
     var yd = new Date(); yd.setDate(yd.getDate() - 1);
     if (iso === yd.toISOString().slice(0, 10)) return 'Вчера';
     return d.getDate() + ' ' + this.MONTHS[d.getMonth()];
+  }
+  fmtGoalDate(iso) {
+    var d = new Date(iso + 'T00:00:00');
+    return d.getDate() + ' ' + this.MONTHS[d.getMonth()] + ' ' + d.getFullYear();
   }
 
   renderVals() {
@@ -1332,6 +1503,34 @@ class Component extends DCLogic {
 
     var streakDays = (s.history || []).length + 1;
 
+    // ---- goal feature view-model ----
+    var goalIsActive = s.goal === 'lose' || s.goal === 'gain';
+    var goalCardSub = (s.targetWeight != null)
+      ? ('Цель: ' + this.fmtW(s.targetWeight) + ' кг' + (s.pace != null ? ' · ' + (s.goal === 'gain' ? '+' : '−') + s.pace + ' кг/нед' : ''))
+      : 'Задайте целевой вес и темп';
+
+    var paceDefs = [
+      { key: 'light', label: 'Лёгкий', sub: '~0.25 кг/нед' },
+      { key: 'moderate', label: 'Умеренный', sub: '~0.5 кг/нед' },
+      { key: 'good', label: 'Хороший', sub: '~0.75 кг/нед' },
+      { key: 'aggressive', label: 'Жёсткий', sub: 'быстрый темп' },
+    ];
+    var goalUsingWeeks = parseInt(s.goalDesiredWeeks, 10) > 0;
+    var paceOptions = paceDefs.map(function(p) {
+      var sel = !goalUsingWeeks && s.goalPaceMode === p.key;
+      return {
+        label: p.label, sub: p.sub, check: sel ? '✓' : '',
+        rowStyleSm: rowStyleSm(sel), dotStyle: dot(sel),
+        onSelect: (function(k) { return function() { self.setGoalPace(k); }; })(p.key),
+      };
+    });
+
+    var gp = s.goalPlan;
+    var goalResultWeeksLabel = (gp && gp.weeks != null)
+      ? (gp.weeks + ' ' + this.plural(gp.weeks, ['неделя', 'недели', 'недель'])) : '—';
+    var goalResultPaceLabel = (gp && gp.effective_pace_kg_per_week)
+      ? ((gp.direction === 'gain' ? '+' : '−') + gp.effective_pace_kg_per_week + ' кг/нед') : '';
+
     return {
       isOnboarding: isOnboarding, isApp: s.screen === 'app', isLoading: s.screen === 'loading',
       isStep0: s.step === 0, isStep1: s.step === 1, isStep2: s.step === 2, isStep6: s.step === 6, isStep7: s.step === 7,
@@ -1386,6 +1585,24 @@ class Component extends DCLogic {
       goalLabel: goalLabelMap[s.goal],
       targetP: t.p, targetF: t.f, targetC: t.c,
       paramRows: paramRows, onRecalc: this.recalc, onReset: this.reset,
+
+      // goal feature
+      showGoalCard: goalIsActive,
+      goalCardSub: goalCardSub,
+      onOpenGoal: this.openGoal,
+      goalOpen: s.goalOpen, onCloseGoal: this.closeGoal, onSaveGoal: this.saveGoal,
+      goalTargetWeight: s.goalTargetWeight,
+      goalTargetLabel: s.goalTargetWeight != null ? (this.fmtW(s.goalTargetWeight) + ' кг') : '',
+      onGoalTarget: this.setGoalTarget, onGoalWeeks: this.setGoalWeeks,
+      goalDesiredWeeks: s.goalDesiredWeeks,
+      paceOptions: paceOptions,
+      goalHasResult: !!gp, goalLoading: s.goalLoading,
+      goalResultKcal: gp ? gp.daily_kcal : '—',
+      goalResultWeeks: goalResultWeeksLabel,
+      goalResultDate: (gp && gp.target_date) ? ('≈ ' + this.fmtGoalDate(gp.target_date)) : '',
+      goalResultPace: goalResultPaceLabel,
+      goalWarnings: (gp && gp.warnings) ? gp.warnings : [],
+      goalHasWarnings: !!(gp && gp.warnings && gp.warnings.length),
 
       // nav
       goHome: function() { self.goTab('home'); },

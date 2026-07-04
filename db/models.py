@@ -17,6 +17,10 @@ class User(Base):
     height_cm: Mapped[float | None] = mapped_column(Float, nullable=True)
     activity_level: Mapped[str | None] = mapped_column(String(20), nullable=True)
     goal: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # Goal feature: desired weight and chosen pace (kg/week). Nullable so existing
+    # users without a goal keep working.
+    target_weight_kg: Mapped[float | None] = mapped_column(Float, nullable=True)
+    pace_kg_per_week: Mapped[float | None] = mapped_column(Float, nullable=True)
     target_kcal: Mapped[float | None] = mapped_column(Float, nullable=True)
     target_protein_g: Mapped[float | None] = mapped_column(Float, nullable=True)
     target_fat_g: Mapped[float | None] = mapped_column(Float, nullable=True)

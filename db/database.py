@@ -37,6 +37,13 @@ _COMPOSITE_INDEXES = (
     "CREATE INDEX IF NOT EXISTS ix_weight_log_user_date ON weight_log (user_id, date)",
 )
 
+# Columns added after the table already existed in production — create_all() never
+# ALTERs existing tables, so add them idempotently here.
+_ADD_COLUMNS = (
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS target_weight_kg DOUBLE PRECISION",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS pace_kg_per_week DOUBLE PRECISION",
+)
+
 
 async def init_db(retries: int = 5, delay: float = 1.5):
     """Create tables and indexes. Retries because Railway's private network
@@ -46,6 +53,8 @@ async def init_db(retries: int = 5, delay: float = 1.5):
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
+                for stmt in _ADD_COLUMNS:
+                    await conn.execute(text(stmt))
                 for stmt in _COMPOSITE_INDEXES:
                     await conn.execute(text(stmt))
             return
